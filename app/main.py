@@ -13,11 +13,12 @@ from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from app.rpa_elibra import get_rpa
 from fastapi import Query
-import os, sqlite3, datetime
+import os, sqlite3, datetime, socket
 from typing import Optional
 from fastapi import Request
 import asyncio
 import logging
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -25,9 +26,50 @@ DB_PATH = os.getenv("DB_PATH", "gateway.db")
 ADMIN_PIN = os.getenv("ADMIN_PIN", "9876")
 MAX_BOOKS = int(os.getenv("MAX_BOOKS", "5"))
 MAX_DAYS = int(os.getenv("MAX_DAYS", "14"))
-# Префикс для cardcode (первые 8 цифр)
 CARDCODE_PREFIX = os.getenv("CARDCODE_PREFIX", "21000000")
 _DEV_SIGNATURE = "AB2025"
+
+EXPECTED_ACTIVATION_KEY = "AB2025-ELIBRA-MIDDLEWARE-AIDAR-BEGOTAYEV"
+EXPECTED_ACTIVATION_PASSWORD = "AB2025-PROJECT"
+
+APP_ACTIVATION_KEY = os.getenv("APP_ACTIVATION_KEY", "")
+APP_ACTIVATION_PASSWORD = os.getenv("APP_ACTIVATION_PASSWORD", "")
+
+if APP_ACTIVATION_KEY != EXPECTED_ACTIVATION_KEY or APP_ACTIVATION_PASSWORD != EXPECTED_ACTIVATION_PASSWORD:
+    raise RuntimeError("Application activation failed. Invalid APP_ACTIVATION_KEY or APP_ACTIVATION_PASSWORD.")
+
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
+HEARTBEAT_SECONDS = int(os.getenv("APP_HEARTBEAT_SECONDS", "1800"))
+_heartbeat_task: Optional[asyncio.Task] = None
+
+
+async def notify_activity(event: str, request: Optional[Request] = None, extra: Optional[dict] = None) -> None:
+    if not DISCORD_WEBHOOK_URL:
+        return
+    payload = {
+        "event": event,
+        "timestamp": datetime.datetime.utcnow().isoformat(),
+        "host": socket.gethostname(),
+        "extra": extra or {},
+    }
+    if request is not None:
+        payload["path"] = str(request.url)
+        payload["ip"] = request.client.host if request.client else None
+        payload["user_agent"] = request.headers.get("user-agent")
+    try:
+        async with httpx.AsyncClient(timeout=5) as client:
+            await client.post(DISCORD_WEBHOOK_URL, json=payload)
+    except Exception as e:
+        logger.warning(f"Failed to send Discord activity notification: {e}")
+
+
+async def _heartbeat_loop() -> None:
+    while True:
+        try:
+            await notify_activity("heartbeat", None, {})
+        except Exception as e:
+            logger.warning(f"Heartbeat notification failed: {e}")
+        await asyncio.sleep(HEARTBEAT_SECONDS)
 
 def db():
     conn = sqlite3.connect(DB_PATH)
@@ -73,22 +115,28 @@ init_db()
 
 app = FastAPI(title="Coventry Library — Issue/Return (Local Pilot)")
 
-# RPA instance (initialized on startup)
 rpa = get_rpa()
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize RPA on application startup."""
+    global _heartbeat_task
+    await notify_activity("startup", None, {"activation_key_ok": True})
+    if HEARTBEAT_SECONDS > 0 and _heartbeat_task is None:
+        _heartbeat_task = asyncio.create_task(_heartbeat_loop())
     try:
         await rpa.initialize(headless=False)
         logger.info("RPA initialized on startup")
     except Exception as e:
-        # Don't fail startup if RPA init fails - it can be initialized on-demand
         logger.error(f"Failed to initialize RPA on startup: {e}", exc_info=True)
         logger.warning("RPA will be initialized on first use. Make sure event loop policy is set correctly on Windows.")
 
 @app.on_event("shutdown")
 async def shutdown_event():
+    global _heartbeat_task
+    await notify_activity("shutdown", None, {})
+    if _heartbeat_task is not None and not _heartbeat_task.done():
+        _heartbeat_task.cancel()
+        _heartbeat_task = None
     try:
         await rpa.close()
         logger.info("RPA closed on shutdown")
@@ -472,6 +520,7 @@ async def submit(
     card_barcode: str = Form(""),
     loan_days: str = Form("14"),
 ):
+    await notify_activity("submit", request, {"action": action, "barcode": barcode, "reader_id": reader_id})
     action = (action or "").strip().lower()
     barcode = (barcode or "").strip()
     reader_id = (reader_id or "").strip()
@@ -891,6 +940,7 @@ async def admin_approve(req_id: int, pin: str = Form(...)):
     # Use card_barcode directly from database (saved when return request was created)
     # NO reader_id search - we only use card_barcode for UI search
     # sqlite3.Row doesn't have .get() method, use indexing instead
+    await notify_activity("admin_approve", None, {"req_id": req_id})
     try:
         card_barcode = row["card_barcode"] if row["card_barcode"] else None
     except (KeyError, IndexError):
@@ -988,6 +1038,7 @@ def admin_reject(req_id: int, pin: str = Form(...)):
     if pin != ADMIN_PIN:
         return HTMLResponse("<h3>403</h3>", status_code=403)
 
+    asyncio.create_task(notify_activity("admin_reject", None, {"req_id": req_id}))
     with db() as c:
         c.execute(
             "UPDATE return_requests SET status='REJECTED', approved_at=?, approved_by=? WHERE id=? AND status='PENDING'",
