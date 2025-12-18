@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.local
+
+# Database
+*.db
+*.db-journal
+gateway.db
+
+# Playwright profile (will be mounted as volume)
+pw_profile/
+
+# Logs
+*.log
+.cursor/
+
+# Certificates (optional, can be generated in container)
+server.key
+server.crt
+
+# Git
+.git/
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+README.md
+
+# Windows-specific
+run_windows.py
+
+

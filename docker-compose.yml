@@ -1,0 +1,33 @@
+
+services:
+  elibra-middleware:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: elibra-middleware
+    ports:
+      - "8000:8000"
+    environment:
+      # Database path (inside container)
+      - DB_PATH=/app/data/gateway.db
+    env_file:
+      - .env
+    volumes:
+      # Persistent database
+      - ./data:/app/data
+      # Playwright profile for session persistence
+      - ./pw_profile:/app/pw_profile
+      # Optional: HTTPS certificates
+      # - ./certs:/app/certs
+    restart: unless-stopped
+    # Required for Playwright/Chromium
+    security_opt:
+      - seccomp:unconfined
+    shm_size: '2gb'  # Shared memory for Chromium
+    # Optional: set memory limits
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 2G
+
+

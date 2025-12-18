@@ -20,7 +20,6 @@
 - Playwright (Chromium, persistent context)
 - SQLite
 - dotenv (.env)
-- Discord webhook для уведомлений
 
 ## Установка и запуск (Windows, локально)
 
@@ -58,12 +57,7 @@ CARDCODE_PREFIX=21000000
 APP_ACTIVATION_KEY=AB2025-ELIBRA-MIDDLEWARE-AIDAR-BEGOTAYEV
 APP_ACTIVATION_PASSWORD=AB2025-PROJECT
 
-# Discord webhook для нотификаций
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 
-# Интервал heartbeat в секундах (по умолчанию 1800 = 30 минут)
-APP_HEARTBEAT_SECONDS=1800
-```
 
 5. Запуск под Windows (через специальный лаунчер с правильным event loop):
 

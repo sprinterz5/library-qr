@@ -13,7 +13,7 @@ from fastapi import FastAPI, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from app.rpa_elibra import get_rpa
 from fastapi import Query
-import os, sqlite3, datetime, socket
+import os, sqlite3, datetime, socket, platform
 from typing import Optional
 from fastapi import Request
 import asyncio
@@ -38,30 +38,64 @@ APP_ACTIVATION_PASSWORD = os.getenv("APP_ACTIVATION_PASSWORD", "")
 if APP_ACTIVATION_KEY != EXPECTED_ACTIVATION_KEY or APP_ACTIVATION_PASSWORD != EXPECTED_ACTIVATION_PASSWORD:
     raise RuntimeError("Application activation failed. Invalid APP_ACTIVATION_KEY or APP_ACTIVATION_PASSWORD.")
 
-DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL", "")
+DISCORD_STARTUP_WEBHOOK_URL = os.getenv("DISCORD_STARTUP_WEBHOOK_URL", "")
+DISCORD_EVENTS_WEBHOOK_URL = os.getenv("DISCORD_EVENTS_WEBHOOK_URL", "") or DISCORD_STARTUP_WEBHOOK_URL
 HEARTBEAT_SECONDS = int(os.getenv("APP_HEARTBEAT_SECONDS", "1800"))
 _heartbeat_task: Optional[asyncio.Task] = None
 
 
 async def notify_activity(event: str, request: Optional[Request] = None, extra: Optional[dict] = None) -> None:
-    if not DISCORD_WEBHOOK_URL:
+    if event in ("startup", "shutdown"):
+        webhook_url = DISCORD_STARTUP_WEBHOOK_URL
+    else:
+        webhook_url = DISCORD_EVENTS_WEBHOOK_URL
+    if not webhook_url:
         return
-    payload = {
-        "event": event,
-        "timestamp": datetime.datetime.utcnow().isoformat(),
-        "host": socket.gethostname(),
-        "extra": extra or {},
-    }
+    now = datetime.datetime.utcnow().isoformat()
+    host = socket.gethostname()
+    system_info = f"{platform.system()} {platform.release()} | Python {platform.python_version()}"
+    ip_value = host
+    fields = [
+        {"name": "host", "value": host, "inline": True},
+        {"name": "ip", "value": ip_value or "-", "inline": True},
+        {"name": "system", "value": system_info[:256] or "-", "inline": False},
+    ]
     if request is not None:
-        payload["path"] = str(request.url)
-        payload["ip"] = request.client.host if request.client else None
-        payload["user_agent"] = request.headers.get("user-agent")
+        ip = request.client.host if request.client else None
+        ua = request.headers.get("user-agent") or ""
+        url = str(request.url)
+        fields.extend(
+            [
+                {"name": "path", "value": url[:256] or "-", "inline": False},
+                {"name": "ip", "value": ip or host or "-", "inline": True},
+                {"name": "user_agent", "value": ua[:256] or "-", "inline": False},
+            ]
+        )
+    if extra and "main_path" in extra:
+        fields.append(
+            {
+                "name": "main.py",
+                "value": str(extra["main_path"])[:256] or "-",
+                "inline": False,
+            }
+        )
+
+    payload = {
+        "content": f"[{event}] {host} @ {now}",
+        "embeds": [
+            {
+                "title": f"elibra-middleware: {event}",
+                "timestamp": now,
+                "fields": fields,
+            }
+        ],
+    }
+
     try:
         async with httpx.AsyncClient(timeout=5) as client:
-            await client.post(DISCORD_WEBHOOK_URL, json=payload)
+            await client.post(webhook_url, json=payload)
     except Exception as e:
         logger.warning(f"Failed to send Discord activity notification: {e}")
-
 
 async def _heartbeat_loop() -> None:
     while True:
@@ -120,7 +154,14 @@ rpa = get_rpa()
 @app.on_event("startup")
 async def startup_event():
     global _heartbeat_task
-    await notify_activity("startup", None, {"activation_key_ok": True})
+    await notify_activity(
+        "startup",
+        None,
+        {
+            "activation_key_ok": True,
+            "main_path": os.path.abspath(__file__),
+        },
+    )
     if HEARTBEAT_SECONDS > 0 and _heartbeat_task is None:
         _heartbeat_task = asyncio.create_task(_heartbeat_loop())
     try:
@@ -154,6 +195,7 @@ def scan():
   <meta name="generator" content="AB2025"/>
   <!-- AB2025 -->
   <title>Coventry Library — Scan</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#0b0f14;color:#e7edf5;margin:0}
     .wrap{max-width:860px;margin:0 auto;padding:16px}
@@ -192,6 +234,17 @@ def scan():
     .result{border:1px solid #253553;background:#0b1220;border-radius:14px;padding:12px;margin-top:10px}
     .result:hover{border-color:#3a547a}
     .small{font-size:12px;color:#9fb0c5;margin-top:4px;word-break:break-word}
+    .barcode-wrapper{position:relative}
+    .barcode-wrapper input{padding-right:70px}
+    #qr-camera-btn{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:54px;height:54px;border:2px solid #1f7a43;background:#0b2a17;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:24px;z-index:10;pointer-events:auto;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+    #qr-camera-btn:hover{background:#0d3319;border-color:#2a8f55}
+    #qr-reader{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:54px;height:54px;border:2px solid #1f7a43;background:#0b2a17;border-radius:12px;overflow:hidden;z-index:2;display:none}
+    #qr-reader.active{width:200px;height:200px;right:8px;top:auto;bottom:calc(100% + 8px);transform:none}
+    @media (max-width:720px){
+      .barcode-wrapper input{padding-right:70px}
+      #qr-camera-btn,#qr-reader{width:56px;height:56px;right:8px;font-size:22px;min-width:56px;min-height:56px}
+      #qr-reader.active{width:200px;height:200px;right:8px}
+    }
   </style>
 </head>
 <body>
@@ -231,7 +284,11 @@ def scan():
         <div class="hr"></div>
 
         <label>Book barcode (из QR подтянется сам)</label>
-        <input name="barcode" id="barcode" placeholder="2100000005088" required />
+        <div class="barcode-wrapper">
+          <input name="barcode" id="barcode" placeholder="2100000005088" required />
+          <div id="qr-camera-btn" title="Сканировать QR">📷</div>
+          <div id="qr-reader"></div>
+        </div>
 
         <div class="row">
           <div>
@@ -277,7 +334,7 @@ def scan():
   function loadSavedReader(){
     try {
       const saved = localStorage.getItem(KEY_READER);
-      if (saved){
+    if (saved){
         const data = JSON.parse(saved);
         if (data.card_barcode){
           document.getElementById("card_barcode").value = String(data.card_barcode);
@@ -339,13 +396,13 @@ def scan():
       if (data.ok && data.result) {
         const item = data.result;
         const readerId = item.parentId;
-        const fm = (item.fieldModels || []);
-        const getByCode = (code) => {
-          const f = fm.find(x => x.code === code);
-          return f ? f.value : "";
-        };
+      const fm = (item.fieldModels || []);
+      const getByCode = (code) => {
+        const f = fm.find(x => x.code === code);
+        return f ? f.value : "";
+      };
 
-        const first = getByCode("FIRST_NAME");
+      const first = getByCode("FIRST_NAME");
         const last = getByCode("LAST_NAME");
         const card = getByCode("LIBRARY_CARD_BARCODE") || fullCardcode;
         const name = `${first || ""} ${last || ""}`.trim() || "Unknown";
@@ -423,7 +480,7 @@ def scan():
     });
     cardcodeInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && e.target.value.length === 5) {
-        e.preventDefault();
+      e.preventDefault();
         searchByCardcodeSuffix(e.target.value);
       }
     });
@@ -431,6 +488,110 @@ def scan():
     const b = qs("barcode");
     if (b) document.getElementById("barcode").value = b;
     loadSavedReader();
+
+    let html5QrcodeScanner = null;
+    const barcodeInput = document.getElementById("barcode");
+    const qrCameraBtn = document.getElementById("qr-camera-btn");
+    const qrReaderDiv = document.getElementById("qr-reader");
+
+    if (typeof Html5Qrcode === "undefined") {
+      setStatus("❌ Библиотека QR-сканера не загружена. Проверьте интернет-соединение.");
+    }
+
+    function extractBarcodeFromUrl(text) {
+      try {
+        if (text.includes("barcode=")) {
+          const url = new URL(text);
+          const barcode = url.searchParams.get("barcode");
+          if (barcode) {
+            return barcode;
+          }
+        }
+        return text;
+      } catch (e) {
+        if (text.includes("barcode=")) {
+          const match = text.match(/[?&]barcode=([^&]*)/);
+          if (match && match[1]) {
+            return decodeURIComponent(match[1]);
+          }
+        }
+        return text;
+      }
+    }
+
+    const handleCameraClick = async (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      
+      if (typeof Html5Qrcode === "undefined") {
+        setStatus("❌ Библиотека QR-сканера не загружена");
+        return;
+      }
+      
+      if (html5QrcodeScanner) {
+        try {
+          await html5QrcodeScanner.stop();
+          await html5QrcodeScanner.clear();
+          html5QrcodeScanner = null;
+          qrReaderDiv.style.display = "none";
+          qrCameraBtn.style.display = "flex";
+          return;
+        } catch (e) {
+          console.error("Error stopping scanner:", e);
+        }
+      }
+      
+      try {
+        qrCameraBtn.style.display = "none";
+        qrReaderDiv.style.display = "block";
+        qrReaderDiv.classList.add("active");
+        html5QrcodeScanner = new Html5Qrcode("qr-reader");
+        
+        await html5QrcodeScanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: { width: 180, height: 180 }
+          },
+          (decodedText) => {
+            const barcode = extractBarcodeFromUrl(decodedText);
+            barcodeInput.value = barcode;
+            html5QrcodeScanner.stop().then(() => {
+              html5QrcodeScanner.clear();
+              html5QrcodeScanner = null;
+              qrReaderDiv.style.display = "none";
+              qrReaderDiv.classList.remove("active");
+              qrCameraBtn.style.display = "flex";
+              setStatus("✅ QR-код отсканирован");
+            }).catch((e) => {
+              console.error("Error stopping scanner after success:", e);
+            });
+          },
+          (errorMessage) => {
+            // Silent error handling
+          }
+        );
+      } catch (err) {
+        setStatus("❌ Ошибка доступа к камере: " + err.message);
+        qrReaderDiv.style.display = "none";
+        qrReaderDiv.classList.remove("active");
+        qrCameraBtn.style.display = "flex";
+        html5QrcodeScanner = null;
+      }
+    };
+
+    // Support both click and touch events for mobile
+    qrCameraBtn.addEventListener("click", (e) => handleCameraClick(e));
+    qrCameraBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      handleCameraClick(e);
+    }, {passive: false});
+    qrCameraBtn.addEventListener("touchend", (e) => {
+      e.preventDefault();
+      handleCameraClick(e);
+    }, {passive: false});
   });
 </script>
 
@@ -722,7 +883,7 @@ async def api_readers_search_by_cardcode(cardcode: str = Query(..., min_length=5
         return {
             "ok": False,
             "error": result.get("error", "Search failed")
-        }
+    }
 
 @app.get("/admin/returns", response_class=HTMLResponse)
 def admin_returns(pin: str):
