@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" href="/static/css/admin.css">
+{% endblock %}
+
+{% block content %}
+<div class="header">
+    <img src="/img/logo.png" alt="Coventry University" />
+    <div class="header-title">Admin Panel</div>
+</div>
+
+{% block admin_content %}{% endblock %}
+{% endblock %}

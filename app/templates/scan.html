@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Coventry Library — Scan{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="generator" content="AB2025" />
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link rel="stylesheet" href="/static/css/scan.css">
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="header">
+    <div class="header-inner">
+        <img src="/img/logo.png" alt="Coventry University" class="header-logo" />
+        <div class="header-title">Library Desk</div>
+        <div class="badge">Reader saved • QR Scan</div>
+    </div>
+</div>
+
+<div class="wrap">
+    <div class="card">
+        <form id="deskForm" method="POST" action="/submit">
+            <!-- action hidden: set by buttons -->
+            <input type="hidden" name="action" id="action" value="issue" />
+            <!-- reader_id hidden: set by search selection or loaded from localStorage -->
+            <input type="hidden" name="reader_id" id="reader_id" value="" />
+            <!-- card_barcode hidden: for RPA (more reliable search) -->
+            <input type="hidden" name="card_barcode" id="card_barcode" value="" />
+
+            <label>Enter last 5 digits of your cardcode</label>
+            <input id="cardcodeSuffix" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5"
+                placeholder="e.g. 04099" style="font-size:20px;text-align:center;letter-spacing:2px" />
+
+            <div id="readerResult" style="margin-top:16px;display:none">
+                <div class="result">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                        <span style="font-size:20px">✅</span>
+                        <div style="font-size:13px;color:var(--text-muted)">Reader found:</div>
+                    </div>
+                    <div style="font-size:18px;font-weight:700;color:var(--success);line-height:1.4" id="readerName">
+                    </div>
+                    <div style="font-size:12px;color:var(--text-muted);margin-top:6px" id="readerCardcode"></div>
+                </div>
+            </div>
+
+            <div class="muted" style="margin-top:8px">
+                <button type="button" class="ghost" onclick="clearReader()"
+                    style="width:auto;padding:8px 14px;font-size:13px">Change Reader</button>
+            </div>
+
+            <div class="hr"></div>
+
+            <label>Book barcode (auto-fills from QR)</label>
+            <div class="barcode-wrapper">
+                <input name="barcode" id="barcode" placeholder="2100000005088" required />
+                <div id="qr-camera-btn" title="Scan QR">📷</div>
+                <div id="qr-reader"></div>
+            </div>
+
+            <div class="row">
+                <div>
+                    <label>Loan days</label>
+                    <select name="loan_days" id="loan_days">
+                        <option>1</option>
+                        <option>2</option>
+                        <option>3</option>
+                        <option>4</option>
+                        <option>5</option>
+                        <option>6</option>
+                        <option>7</option>
+                        <option>8</option>
+                        <option>9</option>
+                        <option>10</option>
+                        <option>11</option>
+                        <option>12</option>
+                        <option>13</option>
+                        <option selected>14</option>
+                    </select>
+                </div>
+                <div style="display:flex;align-items:end">
+                    <button type="button" class="ghost" onclick="clearBarcode()">Clear Barcode</button>
+                </div>
+            </div>
+
+            <div class="btnrow">
+                <button type="button" id="btnIssue" class="issue" onclick="submitAction('issue')">✅ Issue</button>
+                <button type="button" id="btnReturn" class="return" onclick="submitAction('return')">↩️ Return</button>
+            </div>
+
+            <p class="muted" id="status"></p>
+        </form>
+    </div>
+</div>
+
+<div style="display:none;visibility:hidden;opacity:0;position:absolute;left:-9999px" data-dev="Aidar Begotayev 2025">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    window.CARDCODE_PREFIX = "{{ cardcode_prefix }}";
+</script>
+<script src="/static/js/scan.js"></script>
+{% endblock %}

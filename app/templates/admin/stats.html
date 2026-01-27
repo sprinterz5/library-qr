@@ -1,0 +1,95 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Admin — Statistics{% endblock %}
+
+{% block admin_content %}
+<div class="header">
+    <h1>📊 Статистика системы</h1>
+    <a href="/admin/returns?pin={{ pin }}" class="back-link">← Back to pending returns</a>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value" style="color: var(--success);">{{ total_issued }}</div>
+        <div class="stat-label">Выдано книг</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" style="color: var(--success);">{{ total_approved }}</div>
+        <div class="stat-label">Возвращено</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" style="color: var(--warning);">{{ total_pending }}</div>
+        <div class="stat-label">Ожидают возврата</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" style="color: var(--danger);">{{ total_rejected }}</div>
+        <div class="stat-label">Отклонено</div>
+    </div>
+</div>
+
+<div class="section" style="margin: 24px 0;">
+    <div class="section-title"
+        style="font-size: 18px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border);">
+        📚 Последние выданные книги ({{ issued_books|length }})
+    </div>
+    {% if issued_books %}
+    {% for book in issued_books %}
+    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <div class="card-header">
+                <b>#{{ book['id'] }}</b>
+                <span class="pill-id">{{ book['barcode'] }}</span>
+            </div>
+            <div class="row-small">Reader ID: {{ book['reader_id'] or "" }}</div>
+            <div class="row-small">Card: {{ book['card_barcode'] or "" }}</div>
+            <div class="row-small">Loan days: {{ book['loan_days'] }}</div>
+            <div class="row-small">Issued: {{ book['issued_at'] }}</div>
+        </div>
+        {% if book['card_barcode'] and book['card_barcode']|length >= 5 %}
+        <div style="font-size:28px; font-weight:700; color:var(--text-dark); letter-spacing:-0.5px; margin-left:12px;">
+            {{ book['card_barcode'][-5:] }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <p style="text-align:center;color:var(--text-muted);">Нет выданных книг</p>
+    {% endif %}
+</div>
+
+<div class="section" style="margin: 24px 0;">
+    <div class="section-title"
+        style="font-size: 18px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border);">
+        ↩️ Все заявки на возврат ({{ all_returns|length }})
+    </div>
+    {% if all_returns %}
+    {% for ret in all_returns %}
+    <div class="card">
+        <div class="card-header">
+            <b>Request #{{ ret['id'] }}</b>
+            <span class="pill-id">{{ ret['barcode'] }}</span>
+            {% set status_color = "#666" %}
+            {% if ret['status'] == "PENDING" %}{% set status_color = "var(--warning)" %}{% endif %}
+            {% if ret['status'] == "APPROVED" %}{% set status_color = "var(--success)" %}{% endif %}
+            {% if ret['status'] == "REJECTED" %}{% set status_color = "var(--danger)" %}{% endif %}
+
+            <span style="padding:2px 8px;border-radius:999px;background:{{ status_color }};color:#fff;font-size:11px;">
+                {{ ret['status'] }}
+            </span>
+        </div>
+        <div class="row-small">Reader ID: <code>{{ ret['reader_id'] or "" }}</code></div>
+        <div class="row-small">Created: {{ ret['created_at'] }}</div>
+        {% if ret['approved_at'] %}
+        <div class="row-small">Approved: {{ ret['approved_at'] }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% else %}
+    <p style="text-align:center;color:var(--text-muted);">Нет заявок</p>
+    {% endif %}
+</div>
+
+<div style="text-align:center;margin-top:32px;">
+    <a href="/admin/returns?pin={{ pin }}" class="back-link">← Back to pending returns</a>
+</div>
+{% endblock %}
