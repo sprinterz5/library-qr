@@ -68,7 +68,8 @@ async def startup_event():
     if HEARTBEAT_SECONDS > 0 and _heartbeat_task is None:
         _heartbeat_task = asyncio.create_task(_heartbeat_loop())
     try:
-        await rpa.initialize(headless=False)
+        is_local_windows = (platform.system() == "Windows")
+        await rpa.initialize(headless=not is_local_windows)
         logger.info("RPA initialized on startup")
     except Exception as e:
         logger.error(f"Failed to initialize RPA on startup: {e}", exc_info=True)
