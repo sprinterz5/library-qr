@@ -8,6 +8,12 @@ import datetime
 
 router = APIRouter()
 
+@router.get("/admin", response_class=HTMLResponse)
+async def admin_root(request: Request, pin: str = ""):
+    if pin:
+        return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/returns?pin={pin}" />')
+    return HTMLResponse("<h3>403 Forbidden: Missing PIN</h3>", status_code=403)
+
 @router.get("/admin/returns", response_class=HTMLResponse)
 def admin_returns(request: Request, pin: str):
     if pin != ADMIN_PIN:

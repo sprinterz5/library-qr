@@ -481,7 +481,7 @@
                 <h4 style="color: var(--text-dark);">{{ event.title }}</h4>
                 <p style="margin-top: 8px;">{{ event.description }}</p>
                 <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">📍 {{ event.location }} • 🗓️ {{
-                    event.date_display }}</p>
+                    event.date_display or event.event_date.replace("T", " ") }}</p>
             </div>
             {% endfor %}
             {% else %}
