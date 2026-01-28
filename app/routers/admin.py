@@ -109,6 +109,7 @@ async def admin_events_add(
     description: str = Form(""),
     location: str = Form(""),
     date_display: str = Form(""),
+    event_date: str = Form(...),  # Required datetime-local
     color: str = Form("var(--primary)"),
     pin: str = Form(...)
 ):
@@ -118,8 +119,8 @@ async def admin_events_add(
     now = datetime.datetime.utcnow().isoformat()
     with db() as c:
         c.execute(
-            "INSERT INTO events (title, type, description, location, date_display, color, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (title, type, description, location, date_display, color, now)
+            "INSERT INTO events (title, type, description, location, date_display, event_date, color, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (title, type, description, location, date_display, event_date, color, now)
         )
     
     # Redirect back to events page

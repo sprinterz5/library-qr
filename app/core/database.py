@@ -50,8 +50,15 @@ def init_db():
             type TEXT NOT NULL,       -- WORKSHOP, TRAINING, SESSION, etc.
             description TEXT,
             location TEXT,            -- e.g. "Library"
-            date_display TEXT,        -- Free text e.g. "Check notice board"
+            date_display TEXT,        -- Free text label (optional now)
+            event_date TEXT,          -- ISO8601 value for sorting/filtering
             color TEXT,               -- hex or class suffix
             created_at TEXT NOT NULL
         )
         """)
+        
+        # Migration: Add event_date if missing
+        try:
+            c.execute("ALTER TABLE events ADD COLUMN event_date TEXT")
+        except sqlite3.OperationalError:
+            pass
