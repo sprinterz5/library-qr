@@ -574,7 +574,7 @@ class ElibraRPA:
                 await asyncio.sleep(0.1)
                 
                 # Wait for search API call with timeout
-                max_wait = 5  # Wait up to 5 seconds for results
+                max_wait = 10  # Wait up to 10 seconds for results
                 waited = 0
                 while waited < max_wait and len(results) == 0:
                     await asyncio.sleep(0.3)

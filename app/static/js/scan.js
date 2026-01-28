@@ -107,7 +107,7 @@ async function searchByCardcodeSuffix(suffix) {
             document.getElementById("readerResult").style.display = "none";
         }
     } catch (error) {
-        setStatus("Ошибка при поиске. Попробуйте ещё раз.");
+        setStatus("Ошибка при поиске: " + (error.message || error));
         console.error("Search error:", error);
         document.getElementById("readerResult").style.display = "none";
     } finally {
