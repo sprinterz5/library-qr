@@ -5,7 +5,10 @@
 {% block admin_content %}
 <div class="header">
     <h1>📊 Статистика системы</h1>
-    <a href="/admin/returns?pin={{ pin }}" class="back-link">← Back to pending returns</a>
+    <div style="font-size:14px;">
+        <a href="/admin/returns?pin={{ pin }}" class="back-link">Return Requests</a> •
+        <a href="/admin/events?pin={{ pin }}" class="back-link">Events</a>
+    </div>
 </div>
 
 <div class="stats-grid">

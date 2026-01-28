@@ -11,7 +11,10 @@
     <div id="status" class="status" style="margin-top: 12px; font-size: 14px; color: var(--text-muted);"></div>
     <div id="readerResults"></div>
 </div>
-<a href="/admin/returns?pin={{ pin }}" class="back-link">← Back to admin</a>
+<div style="margin-top:20px;display:flex;gap:16px;">
+    <a href="/admin/returns?pin={{ pin }}" class="back-link">← Return Requests</a>
+    <a href="/admin/events?pin={{ pin }}" class="back-link">Events →</a>
+</div>
 
 <style>
     .result {
