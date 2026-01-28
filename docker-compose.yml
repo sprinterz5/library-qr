@@ -6,7 +6,7 @@ services:
     container_name: elibra-middleware
     restart: unless-stopped
     ports:
-      - "80:8000"
+      - "127.0.0.1:8000:8000"
     volumes:
       - ./data:/app/data
       - ./pw_profile:/app/pw_profile
