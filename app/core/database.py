@@ -41,3 +41,17 @@ def init_db():
             issued_by_ua TEXT
         )
         """)
+        
+        # Events table for dynamic homepage content
+        c.execute("""
+        CREATE TABLE IF NOT EXISTS events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            type TEXT NOT NULL,       -- WORKSHOP, TRAINING, SESSION, etc.
+            description TEXT,
+            location TEXT,            -- e.g. "Library"
+            date_display TEXT,        -- Free text e.g. "Check notice board"
+            color TEXT,               -- hex or class suffix
+            created_at TEXT NOT NULL
+        )
+        """)

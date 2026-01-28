@@ -86,3 +86,51 @@ def admin_stats(request: Request, pin: str):
         "issued_books": issued_books,
         "all_returns": all_returns
     })
+
+@router.get("/admin/events", response_class=HTMLResponse)
+def admin_events(request: Request, pin: str):
+    if pin != ADMIN_PIN:
+        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
+        
+    with db() as c:
+        events = c.execute("SELECT * FROM events ORDER BY created_at DESC").fetchall()
+        
+    return templates.TemplateResponse("admin/events.html", {
+        "request": request,
+        "pin": pin,
+        "events": events
+    })
+
+@router.post("/admin/events/add")
+async def admin_events_add(
+    request: Request,
+    title: str = Form(...),
+    type: str = Form(...),
+    description: str = Form(""),
+    location: str = Form(""),
+    date_display: str = Form(""),
+    color: str = Form("var(--primary)"),
+    pin: str = Form(...)
+):
+    if pin != ADMIN_PIN:
+        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
+    
+    now = datetime.datetime.utcnow().isoformat()
+    with db() as c:
+        c.execute(
+            "INSERT INTO events (title, type, description, location, date_display, color, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (title, type, description, location, date_display, color, now)
+        )
+    
+    # Redirect back to events page
+    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events?pin={pin}" />')
+
+@router.post("/admin/events/delete/{event_id}")
+async def admin_events_delete(event_id: int, pin: str = Form(...)):
+    if pin != ADMIN_PIN:
+        return JSONResponse({"ok": False, "error": "Invalid PIN"}, status_code=403)
+        
+    with db() as c:
+        c.execute("DELETE FROM events WHERE id=?", (event_id,))
+        
+    return JSONResponse({"ok": True})

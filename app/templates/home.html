@@ -472,27 +472,28 @@
         <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-dark);">📅 Upcoming Events
         </h2>
         <div class="resource-grid">
+            {% if events %}
+            {% for event in events %}
+            <div class="resource-card" style="border-left: 4px solid {{ event.color|default('var(--primary)') }};">
+                <p
+                    style="font-size: 12px; color: {{ event.color|default('var(--primary)') }}; font-weight: 600; margin-bottom: 8px;">
+                    {{ event.type }}</p>
+                <h4 style="color: var(--text-dark);">{{ event.title }}</h4>
+                <p style="margin-top: 8px;">{{ event.description }}</p>
+                <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">📍 {{ event.location }} • 🗓️ {{
+                    event.date_display }}</p>
+            </div>
+            {% endfor %}
+            {% else %}
+            <!-- Fallback if no events -->
             <div class="resource-card" style="border-left: 4px solid var(--primary);">
-                <p style="font-size: 12px; color: var(--primary); font-weight: 600; margin-bottom: 8px;">WORKSHOP</p>
-                <h4 style="color: var(--text-dark);">Library Resources Introduction</h4>
-                <p style="margin-top: 8px;">Learn how to use library databases and resources effectively.</p>
-                <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">📍 Library • 🗓️ Check notice
-                    board for dates</p>
+                <p style="font-size: 12px; color: var(--primary); font-weight: 600; margin-bottom: 8px;">ANNOUNCEMENT
+                </p>
+                <h4 style="color: var(--text-dark);">Check Back Soon</h4>
+                <p style="margin-top: 8px;">More events will be announced shortly. Check the notice board in the
+                    library.</p>
             </div>
-            <div class="resource-card" style="border-left: 4px solid #10b981;">
-                <p style="font-size: 12px; color: #10b981; font-weight: 600; margin-bottom: 8px;">TRAINING</p>
-                <h4 style="color: var(--text-dark);">Harvard Referencing Guide</h4>
-                <p style="margin-top: 8px;">Practical session on how to reference correctly and avoid plagiarism.</p>
-                <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">📍 Library • 🗓️ Check notice
-                    board for dates</p>
-            </div>
-            <div class="resource-card" style="border-left: 4px solid #f59e0b;">
-                <p style="font-size: 12px; color: #f59e0b; font-weight: 600; margin-bottom: 8px;">SESSION</p>
-                <h4 style="color: var(--text-dark);">Database Search Training</h4>
-                <p style="margin-top: 8px;">How to search and navigate academic databases efficiently.</p>
-                <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">📍 Library • 🗓️ Check notice
-                    board for dates</p>
-            </div>
+            {% endif %}
         </div>
         <p style="margin-top: 16px; font-size: 14px; color: var(--text-muted);">Contact <a
                 href="mailto:library@coventry.edu.kz" style="color: var(--primary);">library@coventry.edu.kz</a> to
