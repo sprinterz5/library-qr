@@ -42,7 +42,11 @@ function loadSavedReader() {
 }
 
 function clearReader() {
-    localStorage.removeItem(KEY_READER);
+    try {
+        localStorage.removeItem(KEY_READER);
+    } catch (e) {
+        console.warn("Could not clear localStorage:", e);
+    }
     document.getElementById("reader_id").value = "";
     document.getElementById("card_barcode").value = "";
     document.getElementById("cardcodeSuffix").value = "";
@@ -94,7 +98,11 @@ async function searchByCardcodeSuffix(suffix) {
                 reader_id: String(readerId),
                 name: name
             };
-            localStorage.setItem(KEY_READER, JSON.stringify(readerData));
+            try {
+                localStorage.setItem(KEY_READER, JSON.stringify(readerData));
+            } catch (e) {
+                console.warn("Could not save to localStorage:", e);
+            }
             document.getElementById("card_barcode").value = String(card);
             document.getElementById("reader_id").value = String(readerId);
             document.getElementById("readerName").innerText = name + ": " + card;
