@@ -91,10 +91,10 @@
             {% for event in events %}
             <div class="admin-card event-item">
                 <div class="event-header"
-                    style="border-left: 4px solid {{ event.color|default('var(--primary)') }}; padding-left: 12px;">
+                    style="--event-color: {{ event.color|default('var(--primary)') }}; border-left: 4px solid var(--event-color); padding-left: 12px;">
                     <div>
                         <span class="badge"
-                            style="background: {{ event.color|default('var(--primary)') }}; color: white; opacity: 0.9; margin-bottom: 4px; display: inline-block;">
+                            style="background: var(--event-color); color: white; opacity: 0.9; margin-bottom: 4px; display: inline-block;">
                             {{ event.type }}
                         </span>
                         <h3 style="margin: 0; font-size: 16px;">{{ event.title }}</h3>

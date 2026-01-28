@@ -76,7 +76,8 @@
             {% if ret['status'] == "APPROVED" %}{% set status_color = "var(--success)" %}{% endif %}
             {% if ret['status'] == "REJECTED" %}{% set status_color = "var(--danger)" %}{% endif %}
 
-            <span style="padding:2px 8px;border-radius:999px;background:{{ status_color }};color:#fff;font-size:11px;">
+            <span
+                style="--status-bg: {{ status_color }}; padding:2px 8px;border-radius:999px;background:var(--status-bg);color:#fff;font-size:11px;">
                 {{ ret['status'] }}
             </span>
         </div>
