@@ -99,7 +99,8 @@
                         </span>
                         <h3 style="margin: 0; font-size: 16px;">{{ event.title }}</h3>
                     </div>
-                    <button onclick="deleteEvent({{ event.id }})" class="btn-icon danger" title="Delete">🗑️</button>
+                    <button data-id="{{ event.id }}" onclick="deleteEvent(this.dataset.id)" class="btn-icon danger"
+                        title="Delete">🗑️</button>
                 </div>
                 <p class="event-desc">{{ event.description }}</p>
                 <div class="event-meta">
