@@ -62,3 +62,9 @@ def init_db():
             c.execute("ALTER TABLE events ADD COLUMN event_date TEXT")
         except sqlite3.OperationalError:
             pass
+
+        # Migration: Add registration_link (custom override)
+        try:
+            c.execute("ALTER TABLE events ADD COLUMN registration_link TEXT")
+        except sqlite3.OperationalError:
+            pass

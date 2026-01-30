@@ -11,6 +11,14 @@ def get_event_registration_link(event) -> str | None:
     Returns:
         A URL string if configuration is present, otherwise None.
     """
+    # 1. Custom Override (Google Forms, external link, etc.)
+    # Handle dict vs Row access safely
+    reg_link = event["registration_link"] if isinstance(event, dict) else (event["registration_link"] if "registration_link" in event.keys() else None)
+    
+    if reg_link and str(reg_link).strip():
+        return str(reg_link).strip()
+
+    # 2. Microsoft Forms Auto-Generation
     if not settings.ms_forms_base_url:
         return None
         

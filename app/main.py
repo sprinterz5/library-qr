@@ -40,6 +40,9 @@ async def _heartbeat_loop() -> None:
             logger.warning(f"Heartbeat notification failed: {e}")
         await asyncio.sleep(HEARTBEAT_SECONDS)
 
+from app.core.templates import templates
+from app.core.utils_events import get_event_registration_link
+
 app = FastAPI(title="Coventry Library — Issue/Return (Local Pilot)")
 
 # Register global template helpers
