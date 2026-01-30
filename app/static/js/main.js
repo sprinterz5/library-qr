@@ -38,11 +38,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (tabId === 'borrowing') {
                     if (sidebarBorrowing) sidebarBorrowing.style.display = 'block';
                     if (sidebarReferencing) sidebarReferencing.style.display = 'none';
-                    switchSubsection('overview');
+                    if (!document.querySelector('#borrowing .subsection.active')) {
+                        switchSubsection('overview');
+                    }
                 } else {
                     if (sidebarBorrowing) sidebarBorrowing.style.display = 'none';
                     if (sidebarReferencing) sidebarReferencing.style.display = 'block';
-                    switchSubsection('apa-style');
+                    if (!document.querySelector('#referencing .subsection.active')) {
+                        switchSubsection('apa-style');
+                    }
                 }
             } else {
                 sidebar.classList.remove('visible');
@@ -58,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Switch to a specific subsection within borrowing
+    // Switch to a specific subsection within borrowing/referencing
     function switchSubsection(subsectionId) {
         // Update sidebar links
         sidebarLinks.forEach(link => {
@@ -66,8 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
             link.classList.toggle('active', linkTarget === subsectionId);
         });
 
-        // Show/hide subsections
-        subsections.forEach(sub => sub.classList.toggle('active', sub.id === subsectionId));
+        // Show/hide subsections (check if element exists first)
+        subsections.forEach(sub => {
+            // Only toggle if the subsection exists in the current DOM state? 
+            // Actually, subsections are all present, just hidden.
+            sub.classList.toggle('active', sub.id === subsectionId);
+        });
     }
 
     // Sidebar link click handlers (switch subsections)
