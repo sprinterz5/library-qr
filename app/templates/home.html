@@ -22,6 +22,7 @@
             <a href="#home" class="header-nav-link active" data-tab="home">🏠 Home</a>
             <a href="#borrowing" class="header-nav-link" data-tab="borrowing">📚 Borrowing</a>
             <a href="#resources" class="header-nav-link" data-tab="resources">📑 Resources</a>
+            <a href="#referencing" class="header-nav-link" data-tab="referencing">📝 Referencing</a>
             <a href="#about" class="header-nav-link" data-tab="about">ℹ️ About</a>
             <a href="#contact" class="header-nav-link" data-tab="contact">🕐 Hours & Contact</a>
         </nav>
@@ -34,10 +35,17 @@
     <div class="hero">
         <div class="hero-grid">
             <a href="https://coventry.elibra.kz/" target="_blank" class="hero-card hero-card-elibra">
-                <svg class="hero-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <ellipse cx="12" cy="5" rx="9" ry="3" />
-                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
-                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                <!-- KZ Flag -->
+                <svg class="hero-card-icon" viewBox="0 0 640 480" preserveAspectRatio="none">
+                    <path fill="#00afca" d="M0 0h640v480H0z" />
+                    <g fill="#f1c40f">
+                        <circle cx="320" cy="240" r="80" />
+                        <path d="M320 120l15 40h40l-30 25 10 40-35-25-35 25 10-40-30-25h40z" />
+                        <path d="M60 0v480h20V0H60z" />
+                        <!-- Simplified ornament pattern for rendering speed/size -->
+                        <path
+                            d="M60 40c10-10 20 0 10 10s-20 0-10-10m0 40c10-10 20 0 10 10s-20 0-10-10m0 40c10-10 20 0 10 10s-20 0-10-10m0 40c10-10 20 0 10 10s-20 0-10-10m0 40c10-10 20 0 10 10s-20 0-10-10m0 40c10-10 20 0 10 10s-20 0-10-10m0 40c10-10 20 0 10 10s-20 0-10-10m0 40c10-10 20 0 10 10s-20 0-10-10m0 40c10-10 20 0 10 10s-20 0-10-10m0 40c10-10 20 0 10 10s-20 0-10-10" />
+                    </g>
                 </svg>
                 <svg class="hero-card-external" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2">
@@ -45,18 +53,20 @@
                     <polyline points="15 3 21 3 21 9" />
                     <line x1="10" y1="14" x2="21" y2="3" />
                 </svg>
-                <h3>E-Libra Kazakhstan Campus</h3>
-                <p>Access the main library catalogue for Coventry University Kazakhstan. Search and borrow books, access
-                    e-books, journals, and other resources.</p>
+                <h3>Catalogue of Print Books</h3>
+                <p>Access the main library catalogue for Coventry University Kazakhstan. Search and borrow physical
+                    books available on campus.</p>
                 <span class="hero-card-btn">Open Catalogue →</span>
             </a>
             <a href="https://libguides.coventry.ac.uk/partners/resources" target="_blank"
                 class="hero-card hero-card-uk">
-                <svg class="hero-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="2" y1="12" x2="22" y2="12" />
-                    <path
-                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                <!-- UK Flag -->
+                <svg class="hero-card-icon" viewBox="0 0 640 480" preserveAspectRatio="none">
+                    <path fill="#012169" d="M0 0h640v480H0z" />
+                    <path fill="#FFF"
+                        d="M75 0l245 185 245-185h75v50l-245 185 245 185v50h-75l-245-185-245 185H0v-50l245-185L0 50V0h75zM0 160v160h640V160H0zM240 0h160v480H240V0z" />
+                    <path fill="#C8102E"
+                        d="M0 0l245 185h-75L0 60v-60zM640 0l-245 185h75l170-125v-60zM640 480l-245-185h75l170 125v60zM0 480l245-185h-75L0 420v60zM270 0h100v480H270V0zM0 190v100h640V190H0z" />
                 </svg>
                 <svg class="hero-card-external" width="20" height="20" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2">
@@ -64,9 +74,9 @@
                     <polyline points="15 3 21 3 21 9" />
                     <line x1="10" y1="14" x2="21" y2="3" />
                 </svg>
-                <h3>Coventry UK Resources</h3>
-                <p>Access additional databases, e-journals, and digital resources from Coventry University UK available
-                    to partner institutions.</p>
+                <h3>E-Resources & Databases</h3>
+                <p>Access e-books, journals, and digital resources from Coventry University UK available to partner
+                    institutions.</p>
                 <span class="hero-card-btn">View Resources →</span>
             </a>
         </div>
@@ -372,6 +382,62 @@
                         <h4>Scopus <span style="float: right;">→</span></h4>
                         <p>Comprehensive scientific, medical, technical and social science database.</p>
                     </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- REFERENCING SECTION -->
+        <section id="referencing" class="section">
+            <h2 class="section-title">Referencing & Citation</h2>
+
+            <div id="apa-style" class="subsection active">
+                <h3 class="subsection-title">Referencing in APA Style</h3>
+                <div class="info-card">
+                    <div class="info-card-icon">📝</div>
+                    <div>
+                        <h4>Coventry University Harvard & APA</h4>
+                        <p>All students are expected to reference sources using the APA 7th Edition style. Correct
+                            referencing is essential to avoid plagiarism and demonstrate the breadth of your research.
+                        </p>
+                        <a href="https://coventry-kz.libguides.com/referencing" target="_blank" class="policy-link"
+                            style="margin-top: 12px;">
+                            Visit Referencing Guide →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quick-guide" class="subsection">
+                <h3 class="subsection-title">APA Quick Guide</h3>
+                <div class="resource-card">
+                    <h4>📥 APA 7th Edition Guide</h4>
+                    <p>Download the official quick guide for referencing books, journals, websites, and more.</p>
+                    <a href="/pdf/J2771-21_APA_Guide_Amendments_Sep_22_Digital_Interactive_Version_V0.7.pdf"
+                        target="_blank" class="partner-btn" style="margin-top: 16px;">
+                        Download PDF Guide
+                    </a>
+                </div>
+            </div>
+
+            <div id="tools" class="subsection">
+                <h3 class="subsection-title">Citation Tools</h3>
+                <p style="margin-bottom: 16px; color: var(--text-muted);">Manage your references automatically with
+                    these approved tools.</p>
+                <div class="resource-grid">
+                    <div class="resource-card">
+                        <h4>RefWorks</h4>
+                        <p>Web-based reference management tool. Create your own personal database of references and
+                            generate bibliographies automatically.</p>
+                        <a href="https://coventry-kz.libguides.com/citationtools" target="_blank" class="quick-link"
+                            style="margin-top: 12px;">Learn More</a>
+                    </div>
+                    <div class="resource-card">
+                        <h4>Mendeley</h4>
+                        <p>Free reference manager and academic social network that can help you organize your research
+                            and collaborate with others online.</p>
+                        <a href="https://www.mendeley.com/" target="_blank" class="quick-link"
+                            style="margin-top: 12px;">Visit Website</a>
+                    </div>
                 </div>
             </div>
         </section>

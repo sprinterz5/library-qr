@@ -27,10 +27,23 @@ document.addEventListener('DOMContentLoaded', () => {
             // Show/hide sections
             sections.forEach(section => section.classList.toggle('active', section.id === tabId));
 
-            // Show/hide sidebar (only for borrowing)
-            if (tabId === 'borrowing') {
+            // Show/hide sidebar (for borrowing and referencing)
+            const sidebarBorrowing = document.getElementById('sidebar-borrowing');
+            const sidebarReferencing = document.getElementById('sidebar-referencing');
+
+            if (tabId === 'borrowing' || tabId === 'referencing') {
                 sidebar.classList.add('visible');
-                switchSubsection('overview');
+
+                // Toggle specific sidebar content
+                if (tabId === 'borrowing') {
+                    if (sidebarBorrowing) sidebarBorrowing.style.display = 'block';
+                    if (sidebarReferencing) sidebarReferencing.style.display = 'none';
+                    switchSubsection('overview');
+                } else {
+                    if (sidebarBorrowing) sidebarBorrowing.style.display = 'none';
+                    if (sidebarReferencing) sidebarReferencing.style.display = 'block';
+                    switchSubsection('apa-style');
+                }
             } else {
                 sidebar.classList.remove('visible');
             }
