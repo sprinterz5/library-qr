@@ -36,7 +36,7 @@
         <div class="hero-grid">
             <a href="https://coventry.elibra.kz/" target="_blank" class="hero-card hero-card-elibra">
                 <!-- KZ Flag -->
-                <svg class="hero-card-icon" viewBox="0 0 640 480" preserveAspectRatio="none">
+                <svg class="hero-card-icon" viewBox="0 0 640 480" preserveAspectRatio="xMidYMid meet">
                     <path fill="#00afca" d="M0 0h640v480H0z" />
                     <g fill="#f1c40f">
                         <circle cx="320" cy="240" r="80" />
@@ -61,7 +61,7 @@
             <a href="https://libguides.coventry.ac.uk/partners/resources" target="_blank"
                 class="hero-card hero-card-uk">
                 <!-- UK Flag -->
-                <svg class="hero-card-icon" viewBox="0 0 640 480" preserveAspectRatio="none">
+                <svg class="hero-card-icon" viewBox="0 0 640 480" preserveAspectRatio="xMidYMid meet">
                     <path fill="#012169" d="M0 0h640v480H0z" />
                     <path fill="#FFF"
                         d="M75 0l245 185 245-185h75v50l-245 185 245 185v50h-75l-245-185-245 185H0v-50l245-185L0 50V0h75zM0 160v160h640V160H0zM240 0h160v480H240V0z" />
@@ -107,15 +107,29 @@
 <!-- Main Content -->
 <div class="main-content">
     <!-- Sidebar (for Borrowing section) -->
+    <!-- Sidebar -->
     <aside class="sidebar visible" id="sidebar">
-        <div class="sidebar-title">Borrowing</div>
-        <nav class="sidebar-nav">
-            <a href="#overview" class="sidebar-link active">Overview</a>
-            <a href="#finding-items" class="sidebar-link">Finding Items</a>
-            <a href="#borrow-return" class="sidebar-link">Borrow & Return</a>
-            <a href="#donations" class="sidebar-link">Donations</a>
-            <a href="#policies" class="sidebar-link">Policies</a>
-        </nav>
+        <!-- Borrowing Sidebar Group -->
+        <div id="sidebar-borrowing" class="sidebar-group">
+            <div class="sidebar-title">Borrowing</div>
+            <nav class="sidebar-nav">
+                <a href="#overview" class="sidebar-link active">Overview</a>
+                <a href="#finding-items" class="sidebar-link">Finding Items</a>
+                <a href="#borrow-return" class="sidebar-link">Borrow & Return</a>
+                <a href="#donations" class="sidebar-link">Donations</a>
+                <a href="#policies" class="sidebar-link">Policies</a>
+            </nav>
+        </div>
+
+        <!-- Referencing Sidebar Group -->
+        <div id="sidebar-referencing" class="sidebar-group" style="display: none;">
+            <div class="sidebar-title">Referencing</div>
+            <nav class="sidebar-nav">
+                <a href="#apa-style" class="sidebar-link active">APA Style</a>
+                <a href="#quick-guide" class="sidebar-link">Quick Guide</a>
+                <a href="#tools" class="sidebar-link">Citation Tools</a>
+            </nav>
+        </div>
     </aside>
 
     <!-- Content -->
@@ -391,18 +405,66 @@
             <h2 class="section-title">Referencing & Citation</h2>
 
             <div id="apa-style" class="subsection active">
-                <h3 class="subsection-title">Referencing in APA Style</h3>
-                <div class="info-card">
-                    <div class="info-card-icon">📝</div>
-                    <div>
-                        <h4>Coventry University Harvard & APA</h4>
-                        <p>All students are expected to reference sources using the APA 7th Edition style. Correct
-                            referencing is essential to avoid plagiarism and demonstrate the breadth of your research.
+                <h3 class="subsection-title">Referencing in APA Style (7th Edition)</h3>
+
+                <div class="info-card" style="display: block; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">ℹ️</span> Introduction
+                    </h4>
+                    <p>There are two parts to APA referencing: <strong>in-text citations</strong> and a <strong>list of
+                            references</strong>.</p>
+                    <ul class="check-list" style="margin-top: 12px;">
+                        <li><strong>In-text citations</strong>: Short references in the body of your text.</li>
+                        <li><strong>List of References</strong>: Full details of every source at the end of your work.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="row" style="display: flex; gap: 24px; flex-wrap: wrap;">
+                    <div class="col" style="flex: 1; min-width: 300px;">
+                        <h4 style="margin-bottom: 16px; color: var(--primary);">1. In-text Citations</h4>
+                        <p style="margin-bottom: 12px;">An in-text citation must be included whenever you use
+                            information from elsewhere (quote, paraphrase, summary, data, etc.). It normally contains:
                         </p>
-                        <a href="https://coventry-kz.libguides.com/referencing" target="_blank" class="policy-link"
-                            style="margin-top: 12px;">
-                            Visit Referencing Guide →
-                        </a>
+                        <ul class="check-list" style="margin-bottom: 16px;">
+                            <li>Author's last name</li>
+                            <li>Year of publication</li>
+                            <li>Page number(s) (if quoting)</li>
+                        </ul>
+
+                        <div
+                            style="background: var(--bg-light); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Parenthetical Citation
+                            </h5>
+                            <p style="font-size: 13px; font-family: monospace; color: var(--text-dark);">The study
+                                showed a significant increase (Smith, 2021, p. 25).</p>
+                        </div>
+
+                        <div style="background: var(--bg-light); padding: 16px; border-radius: 8px;">
+                            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Narrative Citation</h5>
+                            <p style="font-size: 13px; font-family: monospace; color: var(--text-dark);">Smith (2021)
+                                noted that "results were significant" (p. 25).</p>
+                        </div>
+                    </div>
+
+                    <div class="col" style="flex: 1; min-width: 300px;">
+                        <h4 style="margin-bottom: 16px; color: var(--primary);">2. List of References</h4>
+                        <p style="margin-bottom: 12px;">The list goes at the end of your assignment and gives full
+                            details of sources. Use a <strong>hanging indent</strong> for each entry.</p>
+
+                        <div
+                            style="background: var(--bg-light); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Example Entry</h5>
+                            <p
+                                style="font-size: 13px; font-family: monospace; color: var(--text-dark); padding-left: 20px; text-indent: -20px;">
+                                Gemen, H. (2015). <em>Agricultural finance: From crops to land, water and
+                                    infrastructure.</em> John Wiley. https://doi.org/10.1002/9781118827352
+                            </p>
+                        </div>
+                        <p style="font-size: 13px; color: var(--text-muted);">
+                            <strong>Format:</strong> Alphabetical order by author's last name. Use the Reference List
+                            generator in Word or Zotero/Mendeley to automate this.
+                        </p>
                     </div>
                 </div>
             </div>
