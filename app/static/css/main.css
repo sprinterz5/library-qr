@@ -285,8 +285,30 @@
 
     .sidebar-link.active {
       background: var(--primary);
-      color: white;
+      color: #fff;
       border-left-color: var(--primary-dark);
+    }
+
+    /* Subsections */
+    .subsection {
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .subsection.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* Content Area */
