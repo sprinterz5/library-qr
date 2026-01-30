@@ -62,18 +62,31 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Switch to a specific subsection within borrowing/referencing
+    // Switch to a specific subsection within borrowing/referencing/resources
     function switchSubsection(subsectionId) {
-        // Update sidebar links
+        // Update sidebar links (if match)
         sidebarLinks.forEach(link => {
             const linkTarget = link.getAttribute('href').substring(1);
-            link.classList.toggle('active', linkTarget === subsectionId);
+            if (linkTarget === subsectionId) {
+                link.classList.add('active');
+            } else {
+                // Only remove active if it's in the same group? 
+                // Actually sidebarLinks are only for borrowing/referencing.
+                // We can just toggle all based on match.
+                link.classList.toggle('active', linkTarget === subsectionId);
+            }
         });
 
-        // Show/hide subsections (check if element exists first)
-        subsections.forEach(sub => {
-            // Only toggle if the subsection exists in the current DOM state? 
-            // Actually, subsections are all present, just hidden.
+        // Find the target element to identify its parent section
+        const targetEl = document.getElementById(subsectionId);
+        if (!targetEl) return;
+
+        const parentSection = targetEl.closest('.section');
+        if (!parentSection) return;
+
+        // Toggle only subsections within this parent section
+        const sectionSubsections = parentSection.querySelectorAll('.subsection');
+        sectionSubsections.forEach(sub => {
             sub.classList.toggle('active', sub.id === subsectionId);
         });
     }
