@@ -659,8 +659,14 @@
                     {{ event.type }}</p>
                 <h4 style="color: var(--text-dark);">{{ event.title }}</h4>
                 <p style="margin-top: 8px;">{{ event.description }}</p>
-                <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">📍 {{ event.location }} • 🗓️ {{
-                    event.date_display or (event.event_date or "").replace("T", " ") }}</p>
+                <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">
+                    📍 {{ event.location }} • 🗓️
+                    {% if event.type == 'ANNOUNCEMENT' %}
+                    Posted: {{ (event.created_at or "").split("T")[0] }}
+                    {% else %}
+                    {{ event.date_display or (event.event_date or "").replace("T", " ") }}
+                    {% endif %}
+                </p>
 
                 {% set reg_link = get_event_registration_link(event) %}
                 {% if reg_link %}

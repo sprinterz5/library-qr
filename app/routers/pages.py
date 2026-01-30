@@ -11,7 +11,14 @@ def library_home(request: Request):
     """Coventry University Kazakhstan Library - Main Website"""
     # Fetch events (future only)
     with db() as c:
-        # SQLite date('now') returns YYYY-MM-DD. Simple string comparison works for ISO8601 dates.
-        events = c.execute("SELECT * FROM events WHERE event_date >= date('now') ORDER BY event_date ASC LIMIT 6").fetchall()
+        # SQLite date('now') returns YYYY-MM-DD.
+        # Logic: Events in future OR Announcements (persistent)
+        events = c.execute("""
+            SELECT * FROM events 
+            WHERE event_date >= date('now') 
+               OR type = 'ANNOUNCEMENT' 
+            ORDER BY event_date ASC 
+            LIMIT 10
+        """).fetchall()
         
     return templates.TemplateResponse("home.html", {"request": request, "events": events})

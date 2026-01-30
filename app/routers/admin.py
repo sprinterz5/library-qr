@@ -115,7 +115,7 @@ async def admin_events_add(
     description: str = Form(""),
     location: str = Form(""),
     date_display: str = Form(""),
-    event_date: str = Form(...),  # Required datetime-local
+    event_date: str | None = Form(None),  # Optional
     registration_link: str = Form(""), # Optional override
     color: str = Form("var(--primary)"),
     pin: str = Form(...)
@@ -124,6 +124,10 @@ async def admin_events_add(
         return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
     
     now = datetime.datetime.utcnow().isoformat()
+    # Default event_date to now if not provided (ensures it appears in filters)
+    if not event_date:
+        event_date = now
+
     with db() as c:
         c.execute(
             "INSERT INTO events (title, type, description, location, date_display, event_date, registration_link, color, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",

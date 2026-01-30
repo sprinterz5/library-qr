@@ -13,6 +13,12 @@ def get_event_registration_link(event) -> str | None:
     """
     # 1. Custom Override (Google Forms, external link, etc.)
     # Handle dict vs Row access safely
+    event_type = event["type"] if isinstance(event, dict) else (event["type"] if "type" in event.keys() else "")
+    
+    # Announcements should not have registration links
+    if event_type and str(event_type).upper() == "ANNOUNCEMENT":
+        return None
+
     reg_link = event["registration_link"] if isinstance(event, dict) else (event["registration_link"] if "registration_link" in event.keys() else None)
     
     if reg_link and str(reg_link).strip():
