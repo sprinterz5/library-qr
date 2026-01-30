@@ -482,6 +482,14 @@
                 <p style="margin-top: 8px;">{{ event.description }}</p>
                 <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">📍 {{ event.location }} • 🗓️ {{
                     event.date_display or (event.event_date or "").replace("T", " ") }}</p>
+
+                {% set reg_link = get_event_registration_link(event) %}
+                {% if reg_link %}
+                <a href="{{ reg_link }}" target="_blank"
+                    style="display: inline-block; margin-top: 12px; padding: 6px 12px; background-color: var(--event-color); color: white; text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: 500;">
+                    Register →
+                </a>
+                {% endif %}
             </div>
             {% endfor %}
             {% else %}

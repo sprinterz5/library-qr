@@ -42,6 +42,9 @@ async def _heartbeat_loop() -> None:
 
 app = FastAPI(title="Coventry Library — Issue/Return (Local Pilot)")
 
+# Register global template helpers
+templates.env.globals["get_event_registration_link"] = get_event_registration_link
+
 # Mount static files
 app.mount("/img", StaticFiles(directory="img"), name="img")
 app.mount("/pdf", StaticFiles(directory="pdf"), name="pdf")
