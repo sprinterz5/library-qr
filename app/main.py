@@ -22,6 +22,10 @@ from app.core.utils import notify_activity, logger
 from app.core.rpa import rpa
 from app.routers import pages, scan, admin, api
 
+# Scheduler for due-date reminders
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.cron import CronTrigger
+
 # Check activation
 if APP_ACTIVATION_KEY != EXPECTED_ACTIVATION_KEY or APP_ACTIVATION_PASSWORD != EXPECTED_ACTIVATION_PASSWORD:
     raise RuntimeError("Application activation failed. Invalid APP_ACTIVATION_KEY or APP_ACTIVATION_PASSWORD.")
@@ -59,9 +63,12 @@ app.include_router(scan.router)
 app.include_router(admin.router)
 app.include_router(api.router)
 
+# Scheduler instance
+_scheduler: AsyncIOScheduler | None = None
+
 @app.on_event("startup")
 async def startup_event():
-    global _heartbeat_task
+    global _heartbeat_task, _scheduler
     await notify_activity(
         "startup",
         None,
@@ -81,13 +88,35 @@ async def startup_event():
         logger.error(f"Failed to initialize RPA on startup: {e}", exc_info=True)
         logger.warning("RPA will be initialized on first use.")
 
+    # Start daily due-date reminder scheduler (8:00 AM Almaty = UTC+5)
+    try:
+        from app.overdue_notifier import run_due_reminder
+
+        async def _scheduled_reminder():
+            try:
+                result = await run_due_reminder(test_mode=False, days_threshold=1)
+                logger.info(f"Scheduled due reminder result: {result}")
+            except Exception as e:
+                logger.error(f"Scheduled due reminder failed: {e}", exc_info=True)
+
+        _scheduler = AsyncIOScheduler(timezone="Asia/Almaty")
+        _scheduler.add_job(_scheduled_reminder, CronTrigger(hour=8, minute=0))
+        _scheduler.start()
+        logger.info("📅 Due-date reminder scheduler started (daily at 08:00 Asia/Almaty)")
+    except Exception as e:
+        logger.error(f"Failed to start reminder scheduler: {e}", exc_info=True)
+
 @app.on_event("shutdown")
 async def shutdown_event():
-    global _heartbeat_task
+    global _heartbeat_task, _scheduler
     await notify_activity("shutdown", None, {})
     if _heartbeat_task is not None and not _heartbeat_task.done():
         _heartbeat_task.cancel()
         _heartbeat_task = None
+    if _scheduler is not None:
+        _scheduler.shutdown(wait=False)
+        _scheduler = None
+        logger.info("Reminder scheduler stopped")
     try:
         await rpa.close()
         logger.info("RPA closed on shutdown")
