@@ -148,25 +148,3 @@ async def admin_events_delete(event_id: int, pin: str = Form(...)):
     return JSONResponse({"ok": True})
 
 
-# ── Due-date reminder endpoints ──────────────────────
-
-@router.get("/admin/test-overdue")
-async def admin_test_overdue(pin: str):
-    """Run due-date reminder in TEST mode — only sends to test email."""
-    if pin != ADMIN_PIN:
-        return JSONResponse({"ok": False, "error": "Invalid PIN"}, status_code=403)
-
-    from app.overdue_notifier import run_due_reminder
-    result = await run_due_reminder(test_mode=True, days_threshold=1)
-    return JSONResponse(result)
-
-
-@router.get("/admin/run-overdue")
-async def admin_run_overdue(pin: str, days: int = 1):
-    """Run due-date reminder for ALL users (production)."""
-    if pin != ADMIN_PIN:
-        return JSONResponse({"ok": False, "error": "Invalid PIN"}, status_code=403)
-
-    from app.overdue_notifier import run_due_reminder
-    result = await run_due_reminder(test_mode=False, days_threshold=days)
-    return JSONResponse(result)

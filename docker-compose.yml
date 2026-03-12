@@ -14,4 +14,6 @@ services:
       # - ./app:/app/app
     env_file:
       - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway" 
     # Linux loop policy is fine by default

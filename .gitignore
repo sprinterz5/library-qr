@@ -2,6 +2,7 @@
 gateway.db
 *.db
 *.db-journal
+*.xlsx
 circulation.log
 pw_profile/
 __pycache__/
