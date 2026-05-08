@@ -155,16 +155,32 @@ location /api/chat {
 
 ## Re-indexing on the Server
 
-If you need to re-index (the Pinecone data is cloud-stored, so normally not needed):
+If you need to rebuild the AI knowledge base, use the repository script. It cleans
+the Excel catalog down to author, title, and classification number, then indexes
+the cleaned catalog plus `pdf/` and `app/templates/`.
 
 ```bash
-# From the n8n directory (or copy indexer.py to the server)
-python indexer.py \
-  --pinecone-key YOUR_KEY \
-  --clear
+# Dry run: writes data/library_catalog_clean.csv and shows record counts
+python scripts/reindex_library_ai.py
 
-# Note: EXCEL_PATH and PDF_DIR paths in indexer.py 
-# would need updating for Linux paths
+# Apply: delete the target Pinecone namespace and upload the rebuilt data
+python scripts/reindex_library_ai.py --apply --clear
+```
+
+The script reads these values from `.env`:
+
+```env
+PINECONE_API_KEY=...
+PINECONE_INDEX=library-assistant
+PINECONE_NAMESPACE=__default__
+OLLAMA_URL=http://localhost:11434
+EMBED_MODEL=all-minilm
+```
+
+Run it only when Ollama is available and the embedding model is pulled:
+
+```bash
+ollama pull all-minilm
 ```
 
 ---

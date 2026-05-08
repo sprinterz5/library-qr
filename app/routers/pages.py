@@ -21,4 +21,4 @@ def library_home(request: Request):
             LIMIT 10
         """).fetchall()
         
-    return templates.TemplateResponse("home.html", {"request": request, "events": events})
+    return templates.TemplateResponse(request, "home.html", {"events": events})

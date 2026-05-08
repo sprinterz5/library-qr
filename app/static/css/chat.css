@@ -207,6 +207,7 @@
     border-radius: 16px;
     font-size: 14px;
     line-height: 1.55;
+    white-space: pre-wrap;
     word-wrap: break-word;
     animation: msgFadeIn 0.25s ease-out;
 }

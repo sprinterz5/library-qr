@@ -22,7 +22,7 @@ def admin_returns(request: Request, pin: str):
     with db() as c:
         rows = c.execute("SELECT * FROM return_requests WHERE status='PENDING' ORDER BY id DESC").fetchall()
     
-    return templates.TemplateResponse("admin/returns.html", {"request": request, "rows": rows, "pin": pin})
+    return templates.TemplateResponse(request, "admin/returns.html", {"rows": rows, "pin": pin})
 
 @router.post("/admin/returns/{req_id}/{action}")
 async def admin_returns_action(req_id: int, action: str, pin: str = Form(...)):
@@ -64,7 +64,7 @@ async def admin_returns_action(req_id: int, action: str, pin: str = Form(...)):
 def admin_search(request: Request, pin: str):
     if pin != ADMIN_PIN:
         return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
-    return templates.TemplateResponse("admin/search.html", {"request": request, "pin": pin})
+    return templates.TemplateResponse(request, "admin/search.html", {"pin": pin})
 
 @router.get("/admin/stats", response_class=HTMLResponse)
 def admin_stats(request: Request, pin: str):
@@ -82,8 +82,7 @@ def admin_stats(request: Request, pin: str):
         issued_books = c.execute("SELECT * FROM issued_books ORDER BY id DESC LIMIT 50").fetchall()
         all_returns = c.execute("SELECT * FROM return_requests ORDER BY id DESC LIMIT 50").fetchall()
         
-    return templates.TemplateResponse("admin/stats.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "admin/stats.html", {
         "pin": pin,
         "total_issued": total_issued,
         "total_approved": total_approved,
@@ -101,8 +100,7 @@ def admin_events(request: Request, pin: str):
     with db() as c:
         events = c.execute("SELECT * FROM events ORDER BY created_at DESC").fetchall()
         
-    return templates.TemplateResponse("admin/events.html", {
-        "request": request,
+    return templates.TemplateResponse(request, "admin/events.html", {
         "pin": pin,
         "events": events
     })

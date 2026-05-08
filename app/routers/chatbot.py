@@ -3,6 +3,7 @@ AI Librarian — Chatbot router
 Queries Pinecone vector store + Ollama LLM to answer library questions.
 """
 import os
+import re
 import httpx
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
@@ -17,12 +18,13 @@ EMBED_MODEL = os.getenv("EMBED_MODEL", "all-minilm")
 CHAT_MODEL = os.getenv("CHAT_MODEL", "llama3.2")
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "")
 PINECONE_INDEX = os.getenv("PINECONE_INDEX", "library-assistant")
+PINECONE_NAMESPACE = os.getenv("PINECONE_NAMESPACE", "__default__")
 TOP_K = int(os.getenv("CHAT_TOP_K", "6"))
 
 SYSTEM_PROMPT = """You are the Coventry University Kazakhstan Library AI assistant.
 
 Your knowledge comes ONLY from the library knowledge base which contains:
-- Book catalog (~1014 unique books with titles, authors, ISBNs)
+- Book catalog records with title, author, and classification number / shelf number
 - Library policies and rules (borrowing, copyright, collection development)
 - APA 7th edition referencing guide
 - Website information (services, resources, databases, hours, contact info)
@@ -32,10 +34,18 @@ Rules:
 2. If the answer is not in the context, say you don't have that information and suggest contacting library@coventry.edu.kz or calling +7 (700) 317-33-33.
 3. NEVER invent books, rules, events, or policies not in the context.
 4. Answer in the same language the user writes in (English, Russian, or Kazakh).
-5. When listing books, include author, title, and ISBN if available.
+5. When listing books, include title, author, and classification number so users can find the book on library shelves.
 6. For policy questions, cite the specific document name.
 7. Be friendly and helpful, like a real librarian.
-8. Keep answers concise but complete."""
+8. Keep answers concise but complete.
+9. Do NOT mention internal source ids, context numbers, vector scores, or source names like book_catalog.
+10. For book search results, use this exact readable format:
+I found these books:
+- Title: ...
+  Author: ...
+  Classification number: ...
+11. If the catalog has no author, write "Author: not listed in the catalog".
+12. If the user asks broadly, such as "something about data science", suggest the most relevant books directly instead of asking for more details first."""
 
 # ─── Clients (lazy init) ─────────────────────────────────────────
 _pc_index = None
@@ -59,6 +69,26 @@ def _get_http_client():
     return _http_client
 
 
+def _pinecone_namespace_kwargs() -> dict:
+    namespace = PINECONE_NAMESPACE.strip()
+    return {"namespace": namespace} if namespace else {}
+
+
+def _visible_meta(value: str) -> str:
+    value = (value or "").strip()
+    if value.casefold() in {"unknown", "unknown.", "none", "n/a"}:
+        return ""
+    return value
+
+
+def _clean_reply_output(reply: str) -> str:
+    reply = re.sub(r"\[\d+\]\s*\((?:book_catalog|[^)]*)\)\s*", "", reply or "")
+    reply = re.sub(r"\(\s*book_catalog\s*\)", "", reply)
+    reply = re.sub(r"\bContext item\s+\d+\s*:?", "", reply, flags=re.IGNORECASE)
+    reply = re.sub(r"\n{3,}", "\n\n", reply)
+    return reply.strip()
+
+
 # ─── Helpers ──────────────────────────────────────────────────────
 async def _embed(text: str) -> list[float]:
     """Get embedding vector from Ollama."""
@@ -78,19 +108,33 @@ async def _query_pinecone(embedding: list[float], top_k: int = TOP_K) -> list[di
     results = index.query(
         vector=embedding,
         top_k=top_k,
-        include_metadata=True
+        include_metadata=True,
+        **_pinecone_namespace_kwargs()
     )
     contexts = []
     for match in results.get("matches", []):
         meta = match.get("metadata", {})
-        text = meta.get("text_preview", "")
+        text = meta.get("text_preview", meta.get("text", ""))
         source = meta.get("source", "unknown")
         score = match.get("score", 0)
+        author = _visible_meta(meta.get("author", ""))
+        title = _visible_meta(meta.get("title", meta.get("section", meta.get("filename", ""))))
+        classification_number = _visible_meta(meta.get("classification_number", ""))
+        source_type = meta.get("source_type", "")
+        if source_type == "book":
+            pieces = [f"Title: {title}" if title else ""]
+            pieces.append(f"Author: {author}" if author else "Author: not listed in the catalog")
+            if classification_number:
+                pieces.append(f"Classification number: {classification_number}")
+            text = "Book catalog record. " + "; ".join(piece for piece in pieces if piece) + "."
         contexts.append({
             "text": text,
             "source": source,
             "score": round(score, 3),
-            "title": meta.get("title", meta.get("section", meta.get("filename", "")))
+            "title": title,
+            "author": author,
+            "classification_number": classification_number,
+            "source_type": source_type,
         })
     return contexts
 
@@ -100,7 +144,7 @@ async def _chat_ollama(question: str, contexts: list[dict], history: list[dict] 
     # Build context string
     context_parts = []
     for i, ctx in enumerate(contexts, 1):
-        context_parts.append(f"[{i}] ({ctx['source']}) {ctx['text']}")
+        context_parts.append(f"Context item {i}: {ctx['text']}")
     context_str = "\n\n".join(context_parts)
 
     prompt = f"""Retrieved context from the library knowledge base:
@@ -110,7 +154,8 @@ async def _chat_ollama(question: str, contexts: list[dict], history: list[dict] 
 ---
 User question: {question}
 
-Answer based on the context above. If the context doesn't contain the answer, say so."""
+Answer based on the context above. If the context doesn't contain the answer, say so.
+Use plain text with line breaks. Do not use HTML tags. Do not expose context item numbers unless the user explicitly asks for sources."""
 
     # Build messages with history
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
@@ -171,10 +216,19 @@ async def chat(req: ChatRequest):
             )
 
         # 3. Generate response with Ollama
-        reply = await _chat_ollama(req.message, contexts, req.history)
+        reply = _clean_reply_output(await _chat_ollama(req.message, contexts, req.history))
 
         # 4. Return response with sources
-        sources = [{"source": c["source"], "title": c["title"], "score": c["score"]} for c in contexts]
+        sources = [
+            {
+                "source": c["source"],
+                "title": c["title"],
+                "author": c["author"],
+                "classification_number": c["classification_number"],
+                "score": c["score"],
+            }
+            for c in contexts
+        ]
         return ChatResponse(reply=reply, sources=sources)
 
     except Exception as e:

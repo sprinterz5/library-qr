@@ -7,4 +7,4 @@ router = APIRouter()
 
 @router.get("/scan", response_class=HTMLResponse)
 def scan(request: Request):
-    return templates.TemplateResponse("scan.html", {"request": request, "CARDCODE_PREFIX": CARDCODE_PREFIX})
+    return templates.TemplateResponse(request, "scan.html", {"CARDCODE_PREFIX": CARDCODE_PREFIX})

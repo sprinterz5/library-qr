@@ -60,9 +60,29 @@ app.include_router(admin.router)
 app.include_router(api.router)
 app.include_router(chatbot.router)
 
+def _install_windows_connection_reset_filter() -> None:
+    if platform.system() != "Windows":
+        return
+
+    loop = asyncio.get_running_loop()
+    previous_handler = loop.get_exception_handler()
+
+    def handler(loop, context):
+        exc = context.get("exception")
+        if isinstance(exc, ConnectionResetError) and getattr(exc, "winerror", None) == 10054:
+            logger.debug("Ignored Windows client connection reset: %s", exc)
+            return
+        if previous_handler is not None:
+            previous_handler(loop, context)
+        else:
+            loop.default_exception_handler(context)
+
+    loop.set_exception_handler(handler)
+
 @app.on_event("startup")
 async def startup_event():
     global _heartbeat_task
+    _install_windows_connection_reset_filter()
     await notify_activity(
         "startup",
         None,

@@ -16,3 +16,5 @@ python-multipart
 
 # AI Librarian chatbot
 pinecone>=8.0.0
+openpyxl>=3.1.0
+pypdf>=6.0.0
