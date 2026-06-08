@@ -20,6 +20,8 @@ PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "")
 PINECONE_INDEX = os.getenv("PINECONE_INDEX", "library-assistant")
 PINECONE_NAMESPACE = os.getenv("PINECONE_NAMESPACE", "__default__")
 TOP_K = int(os.getenv("CHAT_TOP_K", "6"))
+CHAT_HTTP_TIMEOUT = float(os.getenv("CHAT_HTTP_TIMEOUT", "300"))
+OLLAMA_KEEP_ALIVE = os.getenv("OLLAMA_KEEP_ALIVE", "30m")
 
 SYSTEM_PROMPT = """You are the Coventry University Kazakhstan Library AI assistant.
 
@@ -65,7 +67,7 @@ def _get_pinecone_index():
 def _get_http_client():
     global _http_client
     if _http_client is None:
-        _http_client = httpx.AsyncClient(timeout=60.0)
+        _http_client = httpx.AsyncClient(timeout=CHAT_HTTP_TIMEOUT)
     return _http_client
 
 
@@ -95,7 +97,7 @@ async def _embed(text: str) -> list[float]:
     client = _get_http_client()
     resp = await client.post(
         f"{OLLAMA_URL}/api/embeddings",
-        json={"model": EMBED_MODEL, "prompt": text[:500]}
+        json={"model": EMBED_MODEL, "prompt": text[:500], "keep_alive": OLLAMA_KEEP_ALIVE}
     )
     resp.raise_for_status()
     data = resp.json()
@@ -173,7 +175,8 @@ Use plain text with line breaks. Do not use HTML tags. Do not expose context ite
         json={
             "model": CHAT_MODEL,
             "messages": messages,
-            "stream": False
+            "stream": False,
+            "keep_alive": OLLAMA_KEEP_ALIVE,
         }
     )
     resp.raise_for_status()
