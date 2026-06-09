@@ -68,3 +68,13 @@ def init_db():
             c.execute("ALTER TABLE events ADD COLUMN registration_link TEXT")
         except sqlite3.OperationalError:
             pass
+
+        c.execute("""
+        CREATE TABLE IF NOT EXISTS vip_guests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            visit_date TEXT NOT NULL,
+            photo_url TEXT NOT NULL,
+            created_at TEXT NOT NULL
+        )
+        """)
