@@ -1,0 +1,226 @@
+  /* Common Admin Styles */
+  body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      line-height: 1.6;
+  }
+
+  :root {
+      --primary: #0055B7;
+      --primary-dark: #003d82;
+      --bg-light: #f8fafc;
+      --bg-white: #ffffff;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #dc2626;
+  }
+
+  /* Header */
+  .header {
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      margin: -24px -24px 24px -24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+  }
+
+  .header img {
+      height: 36px;
+  }
+
+  .header-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+  }
+
+  h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+      text-align: center;
+      color: var(--text-dark);
+  }
+
+  /* Cards */
+  .card {
+      border-radius: 12px;
+      padding: 16px;
+      margin: 12px 0;
+      background: var(--bg-white);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--border);
+  }
+
+  .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 14px;
+      gap: 8px;
+      flex-wrap: wrap;
+  }
+
+  .card-header b {
+      font-size: 16px;
+      color: var(--text-dark);
+  }
+
+  /* Utilities */
+  .pill-id {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 500;
+  }
+
+  .row-small {
+      font-size: 13px;
+      margin: 4px 0;
+      word-break: break-all;
+      color: var(--text-muted);
+  }
+
+  .row-small code {
+      background: var(--bg-light);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+  }
+
+  /* Buttons & Nav */
+  .nav-links {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 12px;
+  }
+
+  .nav-link,
+  .back-link {
+      display: inline-block;
+      padding: 10px 18px;
+      background: var(--primary);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.2s;
+  }
+
+  .nav-link:hover,
+  .back-link:hover {
+      background: var(--primary-dark);
+  }
+
+  .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+  }
+
+  .btn-row form {
+      flex: 1;
+  }
+
+  button.admin-btn {
+      display: block;
+      width: 100%;
+      padding: 12px 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+  }
+
+  button.approve {
+      background: var(--success);
+      color: #fff;
+  }
+
+  button.approve:hover {
+      background: #059669;
+  }
+
+  button.reject {
+      background: var(--warning);
+      color: #fff;
+  }
+
+  button.reject:hover {
+      background: #d97706;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+  }
+
+  .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  }
+
+  .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 8px 0;
+  }
+
+  .stat-label {
+      font-size: 13px;
+      color: #666;
+  }
+
+  /* Forms */
+  input,
+  button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      box-sizing: border-box;
+  }
+
+  button {
+      margin-top: 8px;
+      font-weight: 600;
+      cursor: pointer;
+  }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+      body {
+          padding: 16px;
+      }
+
+      .header {
+          margin: -16px -16px 16px -16px;
+      }
+
+      .card {
+          padding: 12px;
+      }
+  }

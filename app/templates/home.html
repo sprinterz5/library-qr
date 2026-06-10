@@ -1,0 +1,770 @@
+{% extends "base.html" %}
+
+{% block title %}Library | Coventry University Kazakhstan{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="description"
+    content="Coventry University Kazakhstan Library - Access books, e-resources, and library services" />
+<link rel="stylesheet" href="/static/css/main.css">
+<link rel="stylesheet" href="/static/css/chat.css">
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<header class="header">
+    <div class="header-container">
+        <a href="/" class="header-logo">
+            <img src="/img/logo.png" alt="Coventry University Kazakhstan" />
+        </a>
+        <div class="header-divider"></div>
+        <div class="header-title">Coventry University Kazakhstan Library</div>
+        <nav class="header-nav">
+            <a href="#home" class="header-nav-link active" data-tab="home">🏠 Home</a>
+            <a href="#borrowing" class="header-nav-link" data-tab="borrowing">📚 Borrowing</a>
+            <a href="#resources" class="header-nav-link" data-tab="resources">📑 Resources</a>
+            <a href="#referencing" class="header-nav-link" data-tab="referencing">📝 Referencing</a>
+            <a href="#about" class="header-nav-link" data-tab="about">ℹ️ About</a>
+            <a href="#contact" class="header-nav-link" data-tab="contact">🕐 Hours & Contact</a>
+        </nav>
+    </div>
+</header>
+
+<!-- HOME SECTION -->
+<section id="home" class="home-section">
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-grid">
+            <a href="https://coventry.elibra.kz/" target="_blank" class="hero-card hero-card-elibra">
+                <!-- KZ Flag -->
+                <img src="https://flagcdn.com/w160/kz.png" alt="Kazakhstan Flag" class="hero-card-icon">
+                <svg class="hero-card-external" width="25" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+                <h3>Catalogue of Print Books</h3>
+                <p>Access the main library catalogue for Coventry University Kazakhstan. Search and borrow physical
+                    books available on campus.</p>
+                <span class="hero-card-btn">Open Catalogue →</span>
+            </a>
+            <a href="https://libguides.coventry.ac.uk/partners/resources" target="_blank"
+                class="hero-card hero-card-uk">
+                <!-- UK Flag -->
+                <img src="https://flagcdn.com/w160/gb.png" alt="UK Flag" class="hero-card-icon">
+                <svg class="hero-card-external" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+                <svg class="hero-card-external" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+                <h3>E-Resources & Databases</h3>
+                <p>Access e-books, journals, and digital resources from Coventry University UK available to partner
+                    institutions.</p>
+                <span class="hero-card-btn">View Resources →</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Links Section -->
+    <div class="hero" style="padding-top: 0;">
+        <div class="quick-links-block" style="max-width: 1200px; margin: 0 auto;">
+            <h3>📌 Quick Links</h3>
+            <div class="quick-links-grid">
+                <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=Wo9Ue8MLGEi2FKwGqF9k6XV8y9tFLuRJmBQDZwsNE3FUMEtGQzQ0RFdIV1YyV0JPWFk5UkdUOVlBOC4u"
+                    target="_blank" class="quick-link-btn">
+                    📄 Digital Copy Request
+                </a>
+                <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=Wo9Ue8MLGEi2FKwGqF9k6XV8y9tFLuRJmBQDZwsNE3FUMERXV05ERlRaMExITDk4MEFBVE85OEhVUS4u"
+                    target="_blank" class="quick-link-btn">
+                    📚 Purchase Request
+                </a>
+                <a href="https://coventry-kz.libguides.com/az/databases?preview=ee5e7ca91e569826ae2a065ffee24a34"
+                    target="_blank" class="quick-link-btn secondary">
+                    🔤 A-Z Databases
+                </a>
+                <a href="https://libguides.coventry.ac.uk/studyingwithai" target="_blank"
+                    class="quick-link-btn secondary" style="background: #e0f2fe; color: #0284c7;">
+                    🤖 Studying with AI
+                </a>
+                <a href="/book-club" class="quick-link-btn secondary book-club-link">
+                    📖 Book Club
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<div class="main-content">
+    <!-- Sidebar (for Borrowing section) -->
+    <!-- Sidebar -->
+    <aside class="sidebar visible" id="sidebar">
+        <!-- Borrowing Sidebar Group -->
+        <div id="sidebar-borrowing" class="sidebar-group">
+            <div class="sidebar-title">Borrowing</div>
+            <nav class="sidebar-nav">
+                <a href="#overview" class="sidebar-link active">Overview</a>
+                <a href="#finding-items" class="sidebar-link">Finding Items</a>
+                <a href="#borrow-return" class="sidebar-link">Borrow & Return</a>
+                <a href="#donations" class="sidebar-link">Donations</a>
+                <a href="#policies" class="sidebar-link">Policies</a>
+            </nav>
+        </div>
+
+        <!-- Referencing Sidebar Group -->
+        <div id="sidebar-referencing" class="sidebar-group" style="display: none;">
+            <div class="sidebar-title">Referencing</div>
+            <nav class="sidebar-nav">
+                <a href="#apa-style" class="sidebar-link active">APA Style</a>
+                <a href="#quick-guide" class="sidebar-link">Quick Guide</a>
+                <a href="#tools" class="sidebar-link">Citation Tools</a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Content -->
+    <main class="content">
+        <!-- BORROWING SECTION -->
+        <section id="borrowing" class="section">
+            <h2 class="section-title">Borrowing Services</h2>
+
+            <!-- Overview -->
+            <div id="overview" class="subsection">
+                <div class="alert">
+                    <strong>Important:</strong> Please ask librarian for your <strong>reader barcode</strong> to borrow
+                    books from the library.
+                </div>
+
+                <p style="margin-bottom: 24px; color: var(--text-dark); line-height: 1.7;">There are many resources
+                    available to you at the library. Most can be borrowed, but some are only available to use within the
+                    library (reference only). You also have access to an extensive collection of e-books, e-journals and
+                    e-resources via Coventry Library (UK).</p>
+
+                <h3 class="subsection-title">What I Can Borrow</h3>
+                <p style="margin-bottom: 16px; color: var(--text-muted);">There is no charge to borrow items. You are
+                    responsible for all items issued on your University ID card.</p>
+                <table class="loan-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Faculty & Graduates</th>
+                            <th>Undergraduates & Staff</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Loans</strong></td>
+                            <td>20 items</td>
+                            <td>10 items</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3 class="subsection-title" style="margin-top: 32px;">Loan Periods</h3>
+                <table class="loan-table">
+                    <thead>
+                        <tr>
+                            <th>Type of Resource</th>
+                            <th>Type of Loan</th>
+                            <th>Length</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Books</td>
+                            <td>Standard</td>
+                            <td>2 weeks</td>
+                        </tr>
+                        <tr>
+                            <td>Books</td>
+                            <td>Short loan</td>
+                            <td>2 hours</td>
+                        </tr>
+                        <tr>
+                            <td>Books</td>
+                            <td>Reference</td>
+                            <td>Cannot be borrowed – library use only</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-warning" style="margin-top: 24px;">
+                    <strong>Late Returns:</strong> May incur fines or suspended borrowing privileges. Contact <a
+                        href="mailto:library@coventry.edu.kz" style="color:#d97706;">library@coventry.edu.kz</a> for
+                    loan/account issues.
+                </div>
+            </div>
+
+            <!-- Finding Items -->
+            <div id="finding-items" class="subsection">
+                <h3 class="subsection-title">Finding Items</h3>
+                <div class="steps">
+                    <div class="step">
+                        <div class="step-content">
+                            <p>Search the catalog with keywords or author surname</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-content">
+                            <p>Check availability (shelf number and copies shown)</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-content">
+                            <p>Note the shelf number (on book spine label)</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-content">
+                            <p>Locate the shelf (items arranged alphabetically/numerically)</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert" style="margin-top: 16px;">
+                    <strong>Tip:</strong> Books on the same topic are usually in the same area. Ask a librarian if you
+                    need help!
+                </div>
+            </div>
+
+            <!-- Borrow & Return -->
+            <div id="borrow-return" class="subsection">
+                <h3 class="subsection-title">Borrow & Return</h3>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <div class="info-card-icon">✅</div>
+                        <div>
+                            <h4>Borrowing</h4>
+                            <p>Take the item to the Circulation Desk with your Student ID Card</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon">↩️</div>
+                        <div>
+                            <h4>Returning</h4>
+                            <p>Return to the Circulation Desk or use the drop-box before the due date</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon">🔄</div>
+                        <div>
+                            <h4>Renewals</h4>
+                            <p>Done through the Locate online system (automatic or manual). Allowed if no other student
+                                has a hold.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Donations -->
+            <div id="donations" class="subsection">
+                <h3 class="subsection-title">Donating Materials</h3>
+                <p style="margin-bottom: 16px; color: var(--text-dark); line-height: 1.7;">Please get in touch if you
+                    would like to donate material to the library. It's helpful for us to know in advance what you are
+                    planning to donate, because not everything is suitable for our collection. You can get in touch with
+                    us through <a href="mailto:library@coventry.edu.kz"
+                        style="color: var(--primary); font-weight: 500;">library@coventry.edu.kz</a>.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+                    <div>
+                        <h4 style="font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #10b981;">✓ As a
+                            general guide we would welcome as donations:</h4>
+                        <ul class="check-list">
+                            <li>Extra copies of current books in demand</li>
+                            <li>Recently published materials that fit our teaching or research profile</li>
+                            <li>Rare items that are suitable for special collections</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #ef4444;">✗
+                            Unfortunately, we are not able to take:</h4>
+                        <ul class="cross-list">
+                            <li>Old superseded editions of textbooks</li>
+                            <li>Duplicates of existing holdings where we don't need any further copies</li>
+                            <li>Journals/periodicals</li>
+                            <li>Items in poor condition</li>
+                            <li>Large collections that we can't accommodate</li>
+                            <li>Items that don't fit our teaching/research profile</li>
+                        </ul>
+                    </div>
+                </div>
+                <p style="margin-top: 20px; color: var(--text-muted); font-size: 14px;">Accepted donations will be
+                    evaluated by a subject specialist, and we reserve the right to dispose of any items we feel
+                    unsuitable for the collection.</p>
+            </div>
+
+            <!-- Policies -->
+            <div id="policies" class="subsection">
+                <h3 class="subsection-title">Policies & Information</h3>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 24px;">
+                    <!-- Library Regulations Box -->
+                    <div class="policy-box">
+                        <h4 class="policy-box-title">Where can I see a copy of library regulations?</h4>
+                        <div class="policy-links-vertical">
+                            <a href="/pdf/CUK_Library_Policy.pdf" target="_blank" class="policy-link-item">📄 Library
+                                Policy</a>
+                            <a href="/pdf/CUK_Copyright_Statement.pdf" target="_blank" class="policy-link-item">📄
+                                Copyright Statement</a>
+                        </div>
+                    </div>
+
+                    <!-- Collection Development Box -->
+                    <div class="policy-box">
+                        <h4 class="policy-box-title">How do you decide what resources are included in the library
+                            collection?</h4>
+                        <div class="policy-links-vertical">
+                            <a href="/pdf/Library_Collection_Development_and_Information_Resource_Strategy__1_.pdf"
+                                target="_blank" class="policy-link-item">📄 Collection Development and Information
+                                Resource Strategy</a>
+                        </div>
+                    </div>
+
+                    <!-- Customer Service Box -->
+                    <div class="policy-box">
+                        <h4 class="policy-box-title">What levels of customer service can I expect from you?</h4>
+                        <p style="color: var(--text-dark); margin-bottom: 12px; line-height: 1.6;">The Library aims to
+                            be a welcoming, accessible, and supportive service providing our customers with the
+                            resources they need to succeed.</p>
+                        <p style="font-weight: 600; margin-bottom: 8px; color: var(--text-dark);">We aim to be:</p>
+                        <ul style="color: var(--text-muted); padding-left: 20px;">
+                            <li>Customer-focussed</li>
+                            <li>Inclusive</li>
+                            <li>Ethically and socially responsible</li>
+                            <li>Innovative</li>
+                            <li>Always learning</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RESOURCES SECTION -->
+        <section id="resources" class="section">
+            <h2 class="section-title">Resources</h2>
+
+            <div class="subsection active">
+                <h3 class="subsection-title">Digital Resources</h3>
+                <div class="alert" style="margin-bottom: 24px;">
+                    <strong>Access:</strong> Use your university credentials (UK email for digital resources, local
+                    email for elibra catalogue) to access all digital resources.
+                </div>
+
+                <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px;">Partner Resources</h4>
+                <a href="https://libguides.coventry.ac.uk/partners/resources" target="_blank" class="partner-btn"
+                    style="margin-bottom: 32px; display: inline-flex;">
+                    Coventry UK Resources →
+                </a>
+            </div>
+
+            <div class="subsection active">
+                <h3 class="subsection-title">Databases</h3>
+                <div class="resource-grid">
+                    <a href="https://ebookcentral.proquest.com/lib/coventry/search.action" target="_blank"
+                        class="resource-card" style="text-decoration: none;">
+                        <img src="/img/logo-ebook-central.png" alt="ProQuest"
+                            style="height: 28px; margin-bottom: 12px; display: block;">
+                        <h4>Ebook Central <span style="float: right;">→</span></h4>
+                        <p>E-book platform offering access to a large number of full-text e-books in multiple subject
+                            areas.</p>
+                    </a>
+                    <a href="https://shibbolethsp.jstor.org/start?entityID=https%3A%2F%2Fcoventry.ac.uk%2Fidp&site=jstor&dest=%2F"
+                        target="_blank" class="resource-card" style="text-decoration: none;">
+                        <img src="/img/logo-jstor.png" alt="JSTOR"
+                            style="height: 28px; margin-bottom: 12px; display: block;">
+                        <h4>JSTOR <span style="float: right;">→</span></h4>
+                        <p>Digital library of academic journals, books, and primary sources.</p>
+                    </a>
+                    <a href="https://www.proquest.com/central/fromDatabasesLayer?accountid=10286" target="_blank"
+                        class="resource-card" style="text-decoration: none;">
+                        <img src="/img/logo-proquest.png" alt="ProQuest"
+                            style="height: 28px; margin-bottom: 12px; display: block;">
+                        <h4>ProQuest Central <span style="float: right;">→</span></h4>
+                        <p>Multiple databases covering journal literature across disciplines.</p>
+                    </a>
+                    <a href="https://auth.elsevier.com/ShibAuth/institutionLogin?entityID=https://coventry.ac.uk/idp&appReturnURL=https://www.sciencedirect.com&_oafollow=false"
+                        target="_blank" class="resource-card" style="text-decoration: none;">
+                        <img src="/img/logo-sciencedirect.png" alt="ScienceDirect"
+                            style="height: 28px; margin-bottom: 12px; display: block;">
+                        <h4>ScienceDirect <span style="float: right;">→</span></h4>
+                        <p>Science, technology and medicine full text and bibliographic information.</p>
+                    </a>
+                    <a href="https://auth.elsevier.com/ShibAuth/institutionLogin?entityID=https://coventry.ac.uk/idp&appReturnURL=https://www.scopus.com&_oafollow=false"
+                        target="_blank" class="resource-card" style="text-decoration: none;">
+                        <img src="/img/logo-scopus.png" alt="Scopus"
+                            style="height: 28px; margin-bottom: 12px; display: block;">
+                        <h4>Scopus <span style="float: right;">→</span></h4>
+                        <p>Comprehensive scientific, medical, technical and social science database.</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- REFERENCING SECTION -->
+        <section id="referencing" class="section">
+            <h2 class="section-title">Referencing & Citation</h2>
+
+            <div id="apa-style" class="subsection active">
+                <h3 class="subsection-title">Referencing in APA Style (7th Edition)</h3>
+
+                <div class="info-card" style="display: block; margin-bottom: 24px;">
+                    <h4 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">ℹ️</span> Introduction
+                    </h4>
+                    <p>There are two parts to APA referencing: <strong>in-text citations</strong> and a <strong>list of
+                            references</strong>.</p>
+                    <ul class="check-list" style="margin-top: 12px;">
+                        <li><strong>In-text citations</strong>: Short references in the body of your text.</li>
+                        <li><strong>List of References</strong>: Full details of every source at the end of your work.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="row" style="display: flex; gap: 24px; flex-wrap: wrap;">
+                    <div class="col" style="flex: 1; min-width: 300px;">
+                        <h4 style="margin-bottom: 16px; color: var(--primary);">1. In-text Citations</h4>
+                        <p style="margin-bottom: 12px;">An in-text citation must be included whenever you use
+                            information from elsewhere (quote, paraphrase, summary, data, etc.). It normally contains:
+                        </p>
+                        <ul class="check-list" style="margin-bottom: 16px;">
+                            <li>Author's last name</li>
+                            <li>Year of publication</li>
+                            <li>Page number(s) (if quoting)</li>
+                        </ul>
+
+                        <div
+                            style="background: var(--bg-light); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Parenthetical Citation
+                            </h5>
+                            <p style="font-size: 13px; font-family: monospace; color: var(--text-dark);">The study
+                                showed a significant increase (Smith, 2021, p. 25).</p>
+                        </div>
+
+                        <div style="background: var(--bg-light); padding: 16px; border-radius: 8px;">
+                            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Narrative Citation</h5>
+                            <p style="font-size: 13px; font-family: monospace; color: var(--text-dark);">Smith (2021)
+                                noted that "results were significant" (p. 25).</p>
+                        </div>
+                    </div>
+
+                    <div class="col" style="flex: 1; min-width: 300px;">
+                        <h4 style="margin-bottom: 16px; color: var(--primary);">2. List of References</h4>
+                        <p style="margin-bottom: 12px;">The list goes at the end of your assignment and gives full
+                            details of sources. Use a <strong>hanging indent</strong> for each entry.</p>
+
+                        <div
+                            style="background: var(--bg-light); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Example Entry</h5>
+                            <p
+                                style="font-size: 13px; font-family: monospace; color: var(--text-dark); padding-left: 20px; text-indent: -20px;">
+                                Gemen, H. (2015). <em>Agricultural finance: From crops to land, water and
+                                    infrastructure.</em> John Wiley. https://doi.org/10.1002/9781118827352
+                            </p>
+                        </div>
+                        <p style="font-size: 13px; color: var(--text-muted);">
+                            <strong>Format:</strong> Alphabetical order by author's last name. Use the Reference List
+                            generator in Word or Zotero/Mendeley to automate this.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="quick-guide" class="subsection">
+                <h3 class="subsection-title">APA Quick Guide</h3>
+                <div class="resource-card">
+                    <h4>📥 APA 7th Edition Guide</h4>
+                    <p>Download the official quick guide for referencing books, journals, websites, and more.</p>
+                    <a href="/pdf/J2771-21_APA_Guide_Amendments_Sep_22_Digital_Interactive_Version_V0.7.pdf"
+                        target="_blank" class="partner-btn" style="margin-top: 16px;">
+                        Download PDF Guide
+                    </a>
+                </div>
+            </div>
+
+            <div id="tools" class="subsection">
+                <h3 class="subsection-title">Citation Tools</h3>
+                <p style="margin-bottom: 24px; color: var(--text-dark); line-height: 1.7;">Bibliographic management
+                    tools interface directly with library databases and allow you to collect, organize, and cite your
+                    references automatically. The library supports the following tools:</p>
+
+                <!-- Tool Tabs/Grid -->
+                <div class="resource-grid" style="grid-template-columns: 1fr;">
+
+                    <!-- Zotero -->
+                    <div class="resource-card" style="border-left: 4px solid #cc2936;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                            <h4 style="font-size: 18px; color: #cc2936;">Zotero</h4>
+                            <span
+                                style="background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">Recommended</span>
+                        </div>
+                        <p style="margin-bottom: 16px;">Free "bibliographic citation management" software that works
+                            inside your browser (Firefox/Chrome) to save citations and organize research.</p>
+
+                        <div
+                            style="background: var(--bg-light); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+                            <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">In a Nutshell:</h5>
+                            <ol
+                                style="margin: 0; padding-left: 20px; font-size: 14px; color: var(--text-dark); line-height: 1.6;">
+                                <li><strong>Install:</strong> Zotero Standalone or Browser Extension.</li>
+                                <li><strong>Plugin:</strong> Install the word-processor plugin (Word/Open Office).</li>
+                                <li><strong>Configure:</strong> Set your citation style (e.g., APA).</li>
+                                <li><strong>Usage:</strong> Automatically grab PDFs and sync data across computers.</li>
+                            </ol>
+                        </div>
+                        <a href="https://www.zotero.org/download/" target="_blank" class="quick-link">Download
+                            Zotero</a>
+                    </div>
+
+                    <!-- Mendeley -->
+                    <div class="resource-card" style="border-left: 4px solid #9f182f;">
+                        <h4 style="font-size: 18px; color: #9f182f; margin-bottom: 12px;">Mendeley</h4>
+                        <p style="margin-bottom: 16px;">Free reference manager and academic social network. Excellent
+                            for organizing PDFs and collaborating online.</p>
+
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                            <div style="background: var(--bg-light); padding: 12px; border-radius: 8px;">
+                                <h5 style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">Key Features</h5>
+                                <ul class="check-list" style="font-size: 13px;">
+                                    <li>Organize PDFs</li>
+                                    <li>Insert citations in Word</li>
+                                    <li>Share research groups</li>
+                                </ul>
+                            </div>
+                            <div style="background: var(--bg-light); padding: 12px; border-radius: 8px;">
+                                <h5 style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">Setup</h5>
+                                <ul
+                                    style="font-size: 13px; padding-left: 16px; line-height: 1.5; color: var(--text-dark);">
+                                    <li>Download Desktop & Sign In</li>
+                                    <li>Install Web Importer</li>
+                                    <li>Install Word Plug-In</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <a href="https://www.mendeley.com/download-desktop-new/" target="_blank"
+                            class="quick-link">Download Mendeley</a>
+                    </div>
+
+                    <!-- EndNote -->
+                    <div class="resource-card" style="border-left: 4px solid #eab308;">
+                        <h4 style="font-size: 18px; color: #ca8a04; margin-bottom: 12px;">EndNote Online Classic</h4>
+                        <p style="margin-bottom: 16px;">Free web-based reference management tool. Great for grouping
+                            references and sharing citations.</p>
+
+                        <ul class="check-list" style="margin-bottom: 16px;">
+                            <li>Group into folders</li>
+                            <li>Retrieve articles quickly</li>
+                            <li>Find duplicates</li>
+                        </ul>
+                        <a href="https://access.clarivate.com/login?app=endnote" target="_blank" class="quick-link">Go
+                            to EndNote Online</a>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT SECTION -->
+        <section id="about" class="section">
+            <h2 class="section-title">About the Library</h2>
+
+            <div class="subsection active">
+                <p style="font-size: 16px; line-height: 1.8; color: var(--text-dark); margin-bottom: 24px;">The Coventry
+                    University Kazakhstan Library serves as the academic center of the campus, providing students with
+                    access to physical collections and extensive digital resources from Lanchester Library, UK.</p>
+
+                <h3 class="subsection-title">Our Mission</h3>
+                <p style="font-size: 16px; line-height: 1.7; color: var(--text-dark); margin-bottom: 24px;">Supporting
+                    learning and research by providing quality information resources and a comfortable study
+                    environment.</p>
+
+                <div class="info-cards" style="margin-bottom: 24px;">
+                    <div class="info-card">
+                        <div class="info-card-icon">📍</div>
+                        <div>
+                            <h4>Location</h4>
+                            <p>Korgalzhyn Highway, 13A, Astana, Kazakhstan</p>
+                        </div>
+                    </div>
+                    <div class="info-card">
+                        <div class="info-card-icon">🎓</div>
+                        <div>
+                            <h4>Access</h4>
+                            <p>Students and staff with valid Student ID Card</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subsection active">
+                <h3 class="subsection-title">Services & Support</h3>
+                <div class="resource-grid">
+                    <div class="resource-card">
+                        <h4>📝 Harvard Referencing</h4>
+                        <p>Citation and formatting support</p>
+                    </div>
+                    <div class="resource-card">
+                        <h4>🔍 Search Training</h4>
+                        <p>Learn to use Locate effectively</p>
+                    </div>
+                    <div class="resource-card">
+                        <h4>✍️ Writing Support</h4>
+                        <p>Help with essays and dissertations</p>
+                    </div>
+                    <div class="resource-card">
+                        <h4>🤫 Study Spaces</h4>
+                        <p>Silent and group study areas</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTACT SECTION -->
+        <section id="contact" class="section">
+            <h2 class="section-title">Hours & Contact</h2>
+
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <h4>🕐 Library Hours</h4>
+                    <div class="contact-item"><strong>Monday - Friday:</strong> 09:00 - 18:00</div>
+                    <div class="contact-item"><strong>Saturday - Sunday:</strong> Closed</div>
+                    <div class="contact-item"><strong>Public Holidays:</strong> Closed</div>
+
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 16px; line-height: 1.5;">Hours may
+                        change during holidays and exam periods. Check campus screens for updates.</p>
+                </div>
+
+                <div class="contact-card">
+                    <h4>📞 Contact Information</h4>
+                    <div class="contact-item">📍 Korgalzhyn Highway, 13A, Astana, Kazakhstan</div>
+                    <div class="contact-item"><a href="tel:+77003173333">📞 +7 (700) 317-33-33</a></div>
+                    <div class="contact-item"><a href="tel:+77003180023">📞 +7 (700) 318-00-23</a></div>
+                    <div class="contact-item"><a href="mailto:library@coventry.edu.kz">✉️ library@coventry.edu.kz</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-links">
+                <a href="https://libguides.coventry.ac.uk/" target="_blank" class="quick-link">📚 LibGuides</a>
+                <a href="https://locate.coventry.ac.uk/" target="_blank" class="quick-link">🔍 Locate (only for UK)</a>
+                <a href="https://moodle.coventry.ac.uk/" target="_blank" class="quick-link">🎓 Moodle</a>
+                <a href="https://solar.coventry.ac.uk/" target="_blank" class="quick-link">☀️ Solar</a>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Events Section -->
+<section class="hero" style="background: var(--bg-light);">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 24px; color: var(--text-dark);">📅 Upcoming Events
+        </h2>
+        <div class="resource-grid">
+            {% set upcoming_list = upcoming_events if upcoming_events is defined else events %}
+            {% if upcoming_list %}
+            {% for event in upcoming_list %}
+            <div class="resource-card"
+                style="--event-color: {{ event.color|default('var(--primary)') }}; border-left: 4px solid var(--event-color);">
+                <p style="font-size: 12px; color: var(--event-color); font-weight: 600; margin-bottom: 8px;">
+                    {{ event.type }}</p>
+                <h4 style="color: var(--text-dark);">{{ event.title }}</h4>
+                <p style="margin-top: 8px;">{{ event.description }}</p>
+                <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">
+                    📍 {{ event.location }} • 🗓️
+                    {% if event.type == 'ANNOUNCEMENT' %}
+                    Posted: {{ (event.created_at or "").split("T")[0] }}
+                    {% else %}
+                    {{ event.date_display or (event.event_date or "").replace("T", " ") }}
+                    {% endif %}
+                </p>
+
+                {% set reg_link = get_event_registration_link(event) %}
+                {% if reg_link %}
+                <a href="{{ reg_link }}" target="_blank"
+                    style="display: inline-block; margin-top: 12px; padding: 6px 12px; background-color: var(--event-color); color: white; text-decoration: none; border-radius: 4px; font-size: 13px; font-weight: 500;">
+                    Register →
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% else %}
+            <!-- Fallback if no events -->
+            <div class="resource-card" style="border-left: 4px solid var(--primary);">
+                <p style="font-size: 12px; color: var(--primary); font-weight: 600; margin-bottom: 8px;">ANNOUNCEMENT
+                </p>
+                <h4 style="color: var(--text-dark);">Check Back Soon</h4>
+                <p style="margin-top: 8px;">More events will be announced shortly. Check the notice board in the
+                    library.</p>
+            </div>
+            {% endif %}
+        </div>
+        <p style="margin-top: 16px; font-size: 14px; color: var(--text-muted);">Contact <a
+                href="mailto:library@coventry.edu.kz" style="color: var(--primary);">library@coventry.edu.kz</a> to
+            request a training session for your group.</p>
+
+        <h2 style="font-size: 24px; font-weight: 700; margin: 40px 0 24px; color: var(--text-dark);">📅 Past Events</h2>
+        <div class="resource-grid">
+            {% if past_events %}
+            {% for event in past_events %}
+            <div class="resource-card"
+                style="--event-color: {{ event.color|default('var(--primary)') }}; border-left: 4px solid var(--event-color); opacity: 0.88;">
+                <p style="font-size: 12px; color: var(--event-color); font-weight: 600; margin-bottom: 8px;">
+                    {{ event.type }}</p>
+                <h4 style="color: var(--text-dark);">{{ event.title }}</h4>
+                <p style="margin-top: 8px;">{{ event.description }}</p>
+                <p style="margin-top: 12px; font-size: 13px; color: var(--text-muted);">
+                    📍 {{ event.location }} • 🗓️ {{ event.date_display or (event.event_date or "").replace("T", " ") }}
+                </p>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="resource-card" style="border-left: 4px solid var(--text-muted); opacity: 0.82;">
+                <p style="font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px;">ARCHIVE</p>
+                <h4 style="color: var(--text-dark);">No Past Events Yet</h4>
+                <p style="margin-top: 8px;">Completed events will appear here automatically after their event date passes.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <h2 style="font-size: 24px; font-weight: 700; margin: 40px 0 24px; color: var(--text-dark);">⭐ VIP Guests</h2>
+        <div class="vip-guests-grid">
+            {% if vip_guests %}
+            {% for guest in vip_guests %}
+            <div class="vip-guest-card">
+                <img src="{{ guest.photo_url }}" alt="{{ guest.name }}" class="vip-guest-photo">
+                <div class="vip-guest-caption">
+                    <h4>{{ guest.name }}</h4>
+                    <p>🗓️ {{ guest.visit_date }}</p>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="resource-card" style="border-left: 4px solid var(--text-muted); opacity: 0.82;">
+                <p style="font-size: 12px; color: var(--text-muted); font-weight: 600; margin-bottom: 8px;">GUESTS</p>
+                <h4 style="color: var(--text-dark);">No VIP Guests Yet</h4>
+                <p style="margin-top: 8px;">Guest photos and visit dates will appear here after they are added by admin.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <p>© 2025 Coventry University Kazakhstan Library</p>
+</footer>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/main.js"></script>
+<script src="/static/js/chat.js"></script>
+{% endblock %}

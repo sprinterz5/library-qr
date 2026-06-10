@@ -82,7 +82,6 @@ if __name__ == "__main__":
             print("🔒 Using HTTPS (--https flag)")
         else:
             print("⚠ --https flag used but certificate files not found.")
-            print("   Run: python generate_self_signed_cert.py")
             print("   Continuing with HTTP...")
             use_https = False
     elif os.path.exists("server.key") and os.path.exists("server.crt"):
@@ -94,7 +93,6 @@ if __name__ == "__main__":
     else:
         # No flag, no cert - use HTTP
         print("🌐 Using HTTP (no certificate found)")
-        print("   To use HTTPS, run: python generate_self_signed_cert.py")
         use_https = False
     
     protocol = "https" if use_https else "http"

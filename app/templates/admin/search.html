@@ -1,0 +1,169 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Admin — Search Readers{% endblock %}
+
+{% block admin_content %}
+<h2>🔍 Search Readers</h2>
+<div class="card">
+    <label>Поиск читателя (имя / email / cardcode)</label>
+    <input id="readerSearch" placeholder="например: aidar / a.begotayev... / 2100000004099" />
+    <button type="button" id="btnSearch" onclick="searchReaders()">🔎 Найти</button>
+    <div id="status" class="status" style="margin-top: 12px; font-size: 14px; color: var(--text-muted);"></div>
+    <div id="readerResults"></div>
+</div>
+<div style="margin-top:20px;display:flex;gap:16px;">
+    <a href="/admin/returns?pin={{ pin }}" class="back-link">← Return Requests</a>
+    <a href="/admin/events?pin={{ pin }}" class="back-link">Events →</a>
+</div>
+
+<style>
+    .result {
+        border: 1px solid #253553;
+        background: #0b1220;
+        border-radius: 14px;
+        padding: 12px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    .result:hover {
+        border-color: #3a547a;
+    }
+
+    .status-loading {
+        color: #10b981;
+        font-weight: 600;
+    }
+
+    button.loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    button.loading::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: translate(-50%, -50%) rotate(360deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    let isSearching = false;
+
+    async function searchReaders() {
+        if (isSearching) return;
+
+        const q = (document.getElementById("readerSearch").value || "").trim();
+        if (q.length < 2) {
+            document.getElementById("status").innerText = "Введите минимум 2 символа";
+            return;
+        }
+
+        isSearching = true;
+        const btn = document.getElementById("btnSearch");
+        const input = document.getElementById("readerSearch");
+        const status = document.getElementById("status");
+        const results = document.getElementById("readerResults");
+
+        btn.disabled = true;
+        btn.classList.add("loading");
+        input.disabled = true;
+        status.innerText = "🔎 Ищу читателя…";
+        status.className = "status status-loading";
+        results.innerHTML = "";
+
+        try {
+            const res = await fetch(`/api/readers/search?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            const el = data.elibra;
+
+            let readerList = [];
+            if (Array.isArray(el)) readerList = el;
+            else if (el && Array.isArray(el.result)) readerList = el.result;
+            else if (el && Array.isArray(el.results)) readerList = el.results;
+
+            if (!readerList.length) {
+                status.innerText = "Не найдено";
+                status.className = "status";
+                return;
+            }
+
+            readerList.slice(0, 25).forEach(item => {
+                const readerId = item.parentId;
+                const fm = (item.fieldModels || []);
+                const getByCode = (code) => {
+                    const f = fm.find(x => x.code === code);
+                    return f ? f.value : "";
+                };
+
+                const first = getByCode("FIRST_NAME");
+                const last = getByCode("LAST_NAME");
+                const email = getByCode("EMAIL");
+                const card = getByCode("LIBRARY_CARD_BARCODE");
+
+                const div = document.createElement("div");
+                div.className = "result";
+                // Custom style for results to match dark/light theme correctly if needed
+                // Assuming card style from admin.css handles background, but result overrides it?
+                // The inline style in template override might conflict with admin.css light theme.
+                // Let's adjust to use var colors.
+                div.style.background = "var(--bg-white)";
+                div.style.borderColor = "var(--border)";
+                div.style.color = "var(--text-dark)";
+
+                const cardFull = card || "-";
+                const cardLast5 = (card && card.length >= 5) ? card.slice(-5) : "";
+
+                div.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div style="font-weight:600; font-size:15px; margin-bottom:2px;">${(first || "")} ${(last || "")}</div>
+                    <div class="row-small" style="color:var(--text-muted);">
+                        ID: ${readerId} • Card: ${cardFull}
+                    </div>
+                    <div class="row-small" style="color:var(--text-muted);">${email || ""}</div>
+                </div>
+                ${cardLast5 ? `<div style="font-size:28px; font-weight:700; color:var(--text-dark); letter-spacing:-0.5px; margin-left:12px;">${cardLast5}</div>` : ""}
+            </div>
+          `;
+                results.appendChild(div);
+            });
+
+            status.innerText = `Найдено: ${readerList.length} читателей`;
+            status.className = "status";
+        } catch (error) {
+            status.innerText = "Ошибка при поиске. Попробуйте ещё раз.";
+            status.className = "status";
+            console.error("Search error:", error);
+        } finally {
+            isSearching = false;
+            btn.disabled = false;
+            btn.classList.remove("loading");
+            input.disabled = false;
+        }
+    }
+
+    document.getElementById("readerSearch").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            searchReaders();
+        }
+    });
+</script>
+{% endblock %}

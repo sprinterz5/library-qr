@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  elibra-middleware:
+    build: .
+    container_name: elibra-middleware
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./pw_profile:/app/pw_profile
+      # Mount source for dev if needed, but for prod copy is better.
+      # - ./app:/app/app
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:host-gateway" 
+    # Linux loop policy is fine by default

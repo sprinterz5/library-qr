@@ -1,0 +1,103 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Admin — Return Requests{% endblock %}
+
+{% block admin_content %}
+<div style="text-align:center;margin-bottom:20px;">
+    <h2>Pending Return Requests</h2>
+    <div class="meta" style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+        Total requests: {{ rows|length }}
+    </div>
+    <div class="nav-links">
+        <a href="/admin/search?pin={{ pin }}" class="nav-link">🔍 Search Readers</a>
+        <a href="/admin/stats?pin={{ pin }}" class="nav-link">📊 Stats & Logs</a>
+        <a href="/admin/events?pin={{ pin }}" class="nav-link">📅 Events</a>
+    </div>
+</div>
+
+{% if rows %}
+{% for r in rows %}
+<div class="card">
+    <div class="card-header">
+        <b>Request #{{ r['id'] }}</b>
+        <span class="pill-id">{{ r['barcode'] }}</span>
+    </div>
+    <div class="row-small">Reader ID: <code>{{ r['reader_id'] or "" }}</code></div>
+    <div class="row-small">Created: {{ r['created_at'] }}</div>
+    <div class="row-small">IP: {{ r['created_ip'] or "" }}</div>
+    <div class="btn-row">
+        <form method="POST" action="/admin/returns/{{ r['id'] }}/reject" class="admin-form"
+            id="form-reject-{{ r['id'] }}">
+            <input type="hidden" name="pin" value="{{ pin }}" />
+            <button type="submit" class="admin-btn reject" id="btn-reject-{{ r['id'] }}">❌ Reject</button>
+        </form>
+        <form method="POST" action="/admin/returns/{{ r['id'] }}/approve" class="admin-form"
+            id="form-approve-{{ r['id'] }}">
+            <input type="hidden" name="pin" value="{{ pin }}" />
+            <button type="submit" class="admin-btn approve" id="btn-approve-{{ r['id'] }}">✅ Approve</button>
+        </form>
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<p style="text-align: center; padding: 32px; color: var(--text-muted);">No pending requests</p>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('.admin-form').forEach(function (form) {
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const formId = form.id;
+                const actionType = formId.includes('approve') ? 'approve' : 'reject';
+                const actionUrl = form.action;
+                const formData = new FormData(form);
+
+                const btn = form.querySelector('button[type="submit"]');
+                if (!btn || btn.disabled) return;
+
+                const card = form.closest('.card');
+                if (card) {
+                    const allBtns = card.querySelectorAll('button.admin-btn');
+                    allBtns.forEach(function (b) {
+                        b.disabled = true;
+                        b.style.opacity = '0.5';
+                        b.style.pointerEvents = 'none';
+                    });
+
+                    const statusEl = document.createElement('div');
+                    statusEl.style.cssText = 'text-align:center;padding:8px;color:#666;font-size:13px;';
+                    statusEl.textContent = actionType === 'approve' ? '⏳ Обрабатываем...' : '⏳ Отклоняем...';
+                    card.appendChild(statusEl);
+                }
+
+                try {
+                    const response = await fetch(actionUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        if (data.rpa_message) {
+                            alert("⚠️ Warning from RPA: " + data.rpa_message);
+                        }
+                        window.location.reload();
+                    } else {
+                        alert("❌ Error: " + (data.error || "Unknown error"));
+                        window.location.reload();
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert("Network Error");
+                    window.location.reload();
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
