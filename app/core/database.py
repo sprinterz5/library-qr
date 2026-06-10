@@ -78,3 +78,24 @@ def init_db():
             created_at TEXT NOT NULL
         )
         """)
+
+        c.execute("""
+        CREATE TABLE IF NOT EXISTS book_club_settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL DEFAULT ''
+        )
+        """)
+
+        default_book_club_settings = {
+            "title": "Book Club's Page",
+            "subtitle": "Join library reading sessions, book discussions, and student-led conversations around fiction, non-fiction, academic reading, and ideas worth sharing.",
+            "instagram_url": "",
+            "email": "library@coventry.edu.kz",
+            "contact_title": "Need More Information?",
+            "contact_text": "For Book Club schedules, reading lists, registration details, or collaboration ideas, contact the library team.",
+        }
+        for key, value in default_book_club_settings.items():
+            c.execute(
+                "INSERT OR IGNORE INTO book_club_settings (key, value) VALUES (?, ?)",
+                (key, value)
+            )

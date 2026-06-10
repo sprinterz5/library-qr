@@ -108,14 +108,54 @@ def admin_events(request: Request, pin: str):
         return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
         
     with db() as c:
-        events = c.execute("SELECT * FROM events ORDER BY created_at DESC").fetchall()
+        events = c.execute("SELECT * FROM events WHERE type != 'BOOK_CLUB' ORDER BY created_at DESC").fetchall()
+        book_club_events = c.execute("SELECT * FROM events WHERE type = 'BOOK_CLUB' ORDER BY created_at DESC").fetchall()
         vip_guests = c.execute("SELECT * FROM vip_guests ORDER BY visit_date DESC, created_at DESC").fetchall()
+        settings_rows = c.execute("SELECT key, value FROM book_club_settings").fetchall()
+        book_club_settings = {row["key"]: row["value"] for row in settings_rows}
         
     return templates.TemplateResponse(request, "admin/events.html", {
         "pin": pin,
         "events": events,
-        "vip_guests": vip_guests
+        "book_club_events": book_club_events,
+        "vip_guests": vip_guests,
+        "book_club_settings": book_club_settings
     })
+
+@router.post("/admin/book-club/settings")
+async def admin_book_club_settings_update(
+    title: str = Form(...),
+    subtitle: str = Form(""),
+    instagram_url: str = Form(""),
+    email: str = Form(""),
+    contact_title: str = Form(""),
+    contact_text: str = Form(""),
+    pin: str = Form(...)
+):
+    if pin != ADMIN_PIN:
+        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
+
+    settings = {
+        "title": title.strip() or "Book Club's Page",
+        "subtitle": subtitle.strip(),
+        "instagram_url": instagram_url.strip(),
+        "email": email.strip(),
+        "contact_title": contact_title.strip() or "Need More Information?",
+        "contact_text": contact_text.strip(),
+    }
+
+    with db() as c:
+        for key, value in settings.items():
+            c.execute(
+                """
+                INSERT INTO book_club_settings (key, value)
+                VALUES (?, ?)
+                ON CONFLICT(key) DO UPDATE SET value=excluded.value
+                """,
+                (key, value)
+            )
+
+    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events?pin={pin}" />')
 
 @router.post("/admin/events/add")
 async def admin_events_add(
@@ -135,6 +175,9 @@ async def admin_events_add(
 ):
     if pin != ADMIN_PIN:
         return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
+
+    if type == "BOOK_CLUB":
+        return HTMLResponse("<h3>Please use the separate Book Club Event form.</h3>", status_code=400)
     
     now = datetime.datetime.utcnow().isoformat()
     if event_date:
@@ -190,6 +233,68 @@ async def admin_events_delete(event_id: int, pin: str = Form(...)):
         c.execute("DELETE FROM events WHERE id=?", (event_id,))
         
     return JSONResponse({"ok": True})
+
+@router.post("/admin/book-club/events/add")
+async def admin_book_club_events_add(
+    request: Request,
+    title: str = Form(...),
+    description: str = Form(""),
+    location: str = Form(""),
+    date_display: str = Form(""),
+    event_date: str | None = Form(None),
+    event_month: str | None = Form(None),
+    event_month_value: str = Form(""),
+    event_year_value: str = Form(""),
+    registration_link: str = Form(""),
+    color: str = Form("var(--primary)"),
+    pin: str = Form(...)
+):
+    if pin != ADMIN_PIN:
+        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
+
+    now = datetime.datetime.utcnow().isoformat()
+    if event_date:
+        try:
+            parsed_event_date = datetime.datetime.fromisoformat(event_date)
+        except ValueError:
+            return HTMLResponse("<h3>Invalid event date.</h3>", status_code=400)
+        if parsed_event_date.year < MIN_EVENT_YEAR:
+            return HTMLResponse("<h3>Event date must be 2025 or later.</h3>", status_code=400)
+    elif event_month_value or event_year_value:
+        if not event_month_value or not event_year_value:
+            return HTMLResponse("<h3>Please select both event month and event year.</h3>", status_code=400)
+        try:
+            year = int(event_year_value)
+            month = int(event_month_value)
+            if year < MIN_EVENT_YEAR:
+                return HTMLResponse("<h3>Event year must be 2025 or later.</h3>", status_code=400)
+            last_day = calendar.monthrange(year, month)[1]
+            event_date = f"{year:04d}-{month:02d}-{last_day:02d}T23:59"
+            if not date_display:
+                date_display = datetime.date(year, month, 1).strftime("%B %Y")
+        except ValueError:
+            return HTMLResponse("<h3>Invalid event month or year.</h3>", status_code=400)
+    elif event_month:
+        try:
+            year, month = [int(part) for part in event_month.split("-", 1)]
+            if year < MIN_EVENT_YEAR:
+                return HTMLResponse("<h3>Event month must be 2025 or later.</h3>", status_code=400)
+            last_day = calendar.monthrange(year, month)[1]
+            event_date = f"{year:04d}-{month:02d}-{last_day:02d}T23:59"
+            if not date_display:
+                date_display = datetime.date(year, month, 1).strftime("%B %Y")
+        except ValueError:
+            return HTMLResponse("<h3>Invalid event month.</h3>", status_code=400)
+    elif not event_date:
+        event_date = now
+
+    with db() as c:
+        c.execute(
+            "INSERT INTO events (title, type, description, location, date_display, event_date, registration_link, color, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (title, "BOOK_CLUB", description, location, date_display, event_date, registration_link, color, now)
+        )
+
+    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events?pin={pin}" />')
 
 @router.post("/admin/vip-guests/add")
 async def admin_vip_guests_add(

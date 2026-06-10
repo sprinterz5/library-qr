@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Book Club | Coventry University Kazakhstan Library{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="description" content="Coventry University Kazakhstan Library Book Club events and meetings" />
+<link rel="stylesheet" href="/static/css/main.css">
+{% endblock %}
+
+{% block content %}
+<header class="header">
+    <div class="header-container">
+        <a href="/" class="header-logo">
+            <img src="/img/logo.png" alt="Coventry University Kazakhstan" />
+        </a>
+        <div class="header-divider"></div>
+        <div class="header-title">Coventry University Kazakhstan Library</div>
+        <nav class="header-nav">
+            <a href="/" class="header-nav-link">🏠 Home</a>
+            <a href="/book-club" class="header-nav-link active">📖 Book Club</a>
+        </nav>
+    </div>
+</header>
+
+<main class="book-club-page">
+    <section class="book-club-hero">
+        <div class="book-club-container">
+            <p class="book-club-kicker">Coventry University Kazakhstan Library</p>
+            <h1>{{ settings.title or "Book Club's Page" }}</h1>
+            <p class="book-club-intro">
+                {{ settings.subtitle or "Join library reading sessions, book discussions, and student-led conversations around fiction, non-fiction, academic reading, and ideas worth sharing." }}
+            </p>
+        </div>
+    </section>
+
+    <section class="book-club-section">
+        <div class="book-club-container book-club-layout">
+            <div class="book-club-events-column">
+                <div class="book-club-events-block">
+                    <h2 class="book-club-section-title">📅 Upcoming Book Club Events</h2>
+                    <div class="resource-grid">
+                        {% if upcoming_events %}
+                        {% for event in upcoming_events %}
+                        <article class="resource-card book-club-event-card"
+                            style="--event-color: {{ event.color|default('var(--primary)') }};">
+                            <p class="book-club-event-type">{{ event.type.replace("_", " ") }}</p>
+                            <h3>{{ event.title }}</h3>
+                            <p>{{ event.description }}</p>
+                            <div class="book-club-event-meta">
+                                <span>📍 {{ event.location or "Library" }}</span>
+                                <span>🗓️ {{ event.date_display or (event.event_date or "").replace("T", " ") }}</span>
+                            </div>
+                            {% set reg_link = get_event_registration_link(event) %}
+                            {% if reg_link %}
+                            <a href="{{ reg_link }}" target="_blank" class="book-club-register">Register →</a>
+                            {% endif %}
+                        </article>
+                        {% endfor %}
+                        {% else %}
+                        <article class="resource-card book-club-event-card empty">
+                            <p class="book-club-event-type">BOOK CLUB</p>
+                            <h3>No Upcoming Events Yet</h3>
+                            <p>New Book Club meetings will appear here after they are added by the library team.</p>
+                        </article>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="book-club-events-block">
+                    <h2 class="book-club-section-title">📚 Past Book Club Events</h2>
+                    <div class="resource-grid">
+                        {% if past_events %}
+                        {% for event in past_events %}
+                        <article class="resource-card book-club-event-card past"
+                            style="--event-color: {{ event.color|default('var(--primary)') }};">
+                            <p class="book-club-event-type">{{ event.type.replace("_", " ") }}</p>
+                            <h3>{{ event.title }}</h3>
+                            <p>{{ event.description }}</p>
+                            <div class="book-club-event-meta">
+                                <span>📍 {{ event.location or "Library" }}</span>
+                                <span>🗓️ {{ event.date_display or (event.event_date or "").replace("T", " ") }}</span>
+                            </div>
+                        </article>
+                        {% endfor %}
+                        {% else %}
+                        <article class="resource-card book-club-event-card empty">
+                            <p class="book-club-event-type">ARCHIVE</p>
+                            <h3>No Past Events Yet</h3>
+                            <p>Completed Book Club meetings will be listed here automatically after their event date passes.</p>
+                        </article>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <aside class="book-club-quick-links" aria-label="Book Club quick links">
+                <h2>Quick Links</h2>
+                {% if settings.instagram_url %}
+                <a href="{{ settings.instagram_url }}" target="_blank" class="book-club-quick-link">
+                    <span>📷</span>
+                    <strong>Instagram</strong>
+                </a>
+                {% endif %}
+                {% if settings.email %}
+                <a href="mailto:{{ settings.email }}" class="book-club-quick-link">
+                    <span>✉️</span>
+                    <strong>Email</strong>
+                </a>
+                {% endif %}
+                {% if not settings.instagram_url and not settings.email %}
+                <p class="book-club-empty-link">Quick links will appear here after admin adds them.</p>
+                {% endif %}
+            </aside>
+        </div>
+    </section>
+
+    <section class="book-club-contact">
+        <div class="book-club-container book-club-contact-grid">
+            <div>
+                <h2>{{ settings.contact_title or "Need More Information?" }}</h2>
+                <p>
+                    {{ settings.contact_text or "For Book Club schedules, reading lists, registration details, or collaboration ideas, contact the library team." }}
+                </p>
+            </div>
+            <div class="book-club-contact-card">
+                <a href="mailto:{{ settings.email or 'library@coventry.edu.kz' }}">✉️ {{ settings.email or "library@coventry.edu.kz" }}</a>
+                <a href="tel:+77003173333">📞 +7 (700) 317-33-33</a>
+                <span>📍 Library, Coventry University Kazakhstan</span>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="footer">
+    <p>© 2025 Coventry University Kazakhstan Library</p>
+</footer>
+{% endblock %}

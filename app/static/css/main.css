@@ -653,6 +653,15 @@
       background: #0077a3;
     }
 
+    .quick-link-btn.book-club-link {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .quick-link-btn.book-club-link:hover {
+      background: #fde68a;
+    }
+
     /* Policy Links */
     .policy-links {
       display: flex;
@@ -804,6 +813,215 @@
       background: var(--primary-dark);
     }
 
+    /* Book Club Page */
+    .book-club-page {
+      background: var(--bg-light);
+    }
+
+    .book-club-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .book-club-hero {
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+      padding: 56px 0 44px;
+    }
+
+    .book-club-kicker {
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .book-club-hero h1 {
+      color: var(--text-dark);
+      font-size: 42px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .book-club-intro {
+      color: var(--text-muted);
+      font-size: 17px;
+      line-height: 1.7;
+      max-width: 760px;
+    }
+
+    .book-club-section {
+      padding: 36px 0;
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .book-club-section-muted {
+      background: var(--bg-light);
+    }
+
+    .book-club-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .book-club-events-column {
+      display: flex;
+      flex-direction: column;
+      gap: 34px;
+      min-width: 0;
+    }
+
+    .book-club-events-block {
+      min-width: 0;
+    }
+
+    .book-club-section-title {
+      color: var(--text-dark);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .book-club-event-card {
+      border-left: 4px solid var(--event-color, var(--primary));
+    }
+
+    .book-club-event-card h3 {
+      color: var(--text-dark);
+      font-size: 18px;
+      line-height: 1.35;
+      margin-bottom: 10px;
+    }
+
+    .book-club-event-card.past {
+      opacity: 0.88;
+    }
+
+    .book-club-event-card.empty {
+      border-left-color: var(--text-muted);
+    }
+
+    .book-club-event-type {
+      color: var(--event-color, var(--primary));
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .book-club-event-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 14px;
+    }
+
+    .book-club-register {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 16px;
+      padding: 8px 14px;
+      background: var(--event-color, var(--primary));
+      color: white;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .book-club-quick-links {
+      position: sticky;
+      top: calc(var(--header-height) + 24px);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      background: var(--bg-white);
+    }
+
+    .book-club-quick-links h2 {
+      color: var(--text-dark);
+      font-size: 18px;
+      margin-bottom: 4px;
+    }
+
+    .book-club-quick-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: var(--primary);
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .book-club-quick-link:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .book-club-empty-link {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .book-club-contact {
+      background: var(--bg-white);
+      padding: 40px 0;
+    }
+
+    .book-club-contact-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.8fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .book-club-contact h2 {
+      color: var(--text-dark);
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .book-club-contact p {
+      color: var(--text-muted);
+      max-width: 720px;
+    }
+
+    .book-club-contact-card {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      background: var(--bg-light);
+    }
+
+    .book-club-contact-card a,
+    .book-club-contact-card span {
+      color: var(--text-dark);
+      font-size: 14px;
+      text-decoration: none;
+    }
+
+    .book-club-contact-card a:hover {
+      color: var(--primary);
+    }
+
     /* Footer */
     .footer {
       background: var(--bg-white);
@@ -918,5 +1136,29 @@
 
       .vip-guests-grid {
         grid-template-columns: 1fr;
+      }
+
+      .book-club-hero {
+        padding: 40px 0 32px;
+      }
+
+      .book-club-hero h1 {
+        font-size: 32px;
+      }
+
+      .book-club-intro {
+        font-size: 15px;
+      }
+
+      .book-club-contact-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .book-club-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .book-club-quick-links {
+        position: static;
       }
     }
