@@ -25,9 +25,172 @@
             <a href="/admin/returns?pin={{ pin }}" class="admin-logout">Back to Site</a>
         </div>
 
+        <!-- Book Club Page Settings -->
+        <div class="admin-card">
+            <h2 class="admin-card-title">Book Club Page Settings</h2>
+            <form action="/admin/book-club/settings" method="POST" class="admin-form">
+                <input type="hidden" name="pin" value="{{ pin }}">
+
+                <div class="form-group">
+                    <label>Page Title</label>
+                    <input type="text" name="title" required
+                        value="{{ book_club_settings.title or "Book Club's Page" }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Intro Text</label>
+                    <textarea name="subtitle" rows="3">{{ book_club_settings.subtitle or "" }}</textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Instagram Link</label>
+                        <input type="url" name="instagram_url" placeholder="https://instagram.com/..."
+                            value="{{ book_club_settings.instagram_url or "" }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" placeholder="library@coventry.edu.kz"
+                            value="{{ book_club_settings.email or "" }}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Bottom Info Title</label>
+                    <input type="text" name="contact_title"
+                        value="{{ book_club_settings.contact_title or "Need More Information?" }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Bottom Info Text</label>
+                    <textarea name="contact_text" rows="3">{{ book_club_settings.contact_text or "" }}</textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save Book Club Page</button>
+            </form>
+        </div>
+
+        <!-- Add Book Club Event Form -->
+        <div class="admin-card book-club-admin-card">
+            <h2 class="admin-card-title">Add Book Club Event</h2>
+            <form action="/admin/book-club/events/add" method="POST" class="admin-form">
+                <input type="hidden" name="pin" value="{{ pin }}">
+
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="title" required placeholder="e.g. Book Discussion: Atomic Habits">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" name="location" value="Library" placeholder="e.g. Library">
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <select name="color">
+                            <option value="#92400e">Book Club Brown</option>
+                            <option value="var(--primary)">Blue (Primary)</option>
+                            <option value="#10b981">Green (Success)</option>
+                            <option value="#f59e0b">Orange (Warning)</option>
+                            <option value="#ef4444">Red (Danger)</option>
+                            <option value="#6366f1">Indigo</option>
+                            <option value="#8b5cf6">Purple</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea name="description" rows="3" placeholder="Brief description of the Book Club meeting..."></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Exact Event Date</label>
+                        <input type="datetime-local" name="event_date" min="2025-01-01T00:00">
+                    </div>
+                    <div class="form-group">
+                        <label>Display Text (Optional override)</label>
+                        <input type="text" name="date_display" placeholder="e.g. 'Every Friday' or leave empty">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Event Month (if exact date is unknown)</label>
+                    <div class="form-row">
+                        <select name="event_month_value">
+                            <option value="">Select month</option>
+                            <option value="01">January</option>
+                            <option value="02">February</option>
+                            <option value="03">March</option>
+                            <option value="04">April</option>
+                            <option value="05">May</option>
+                            <option value="06">June</option>
+                            <option value="07">July</option>
+                            <option value="08">August</option>
+                            <option value="09">September</option>
+                            <option value="10">October</option>
+                            <option value="11">November</option>
+                            <option value="12">December</option>
+                        </select>
+                        <select name="event_year_value">
+                            <option value="">Select year</option>
+                            {% for year in range(2025, 2036) %}
+                            <option value="{{ year }}">{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <small style="color:#64748b; font-size:11px;">Use this only when you know the month and year but not the exact day.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Registration Link (Optional Override)</label>
+                    <input type="url" name="registration_link"
+                        placeholder="Leave empty for auto-generated MS Forms link">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Book Club Event</button>
+            </form>
+        </div>
+
+        <!-- Book Club Events List -->
+        <h2 class="section-title">Book Club Events</h2>
+
+        {% if book_club_events %}
+        <div class="events-list">
+            {% for event in book_club_events %}
+            <div class="admin-card event-item book-club-event-item">
+                <div class="event-header"
+                    style="--event-color: {{ event.color|default('#92400e') }}; border-left: 4px solid var(--event-color); padding-left: 12px;">
+                    <div>
+                        <span class="badge"
+                            style="background: var(--event-color); color: white; opacity: 0.9; margin-bottom: 4px; display: inline-block;">
+                            BOOK CLUB
+                        </span>
+                        <h3 style="margin: 0; font-size: 16px;">{{ event.title }}</h3>
+                    </div>
+                    <button data-id="{{ event.id }}" onclick="deleteEvent(this.dataset.id)" class="btn-icon danger"
+                        title="Delete">🗑️</button>
+                </div>
+                <p class="event-desc">{{ event.description }}</p>
+                <div class="event-meta">
+                    <span>📍 {{ event.location }}</span>
+                    <span>🗓️ {{ event.date_display or (event.event_date or "").replace("T", " ") }}</span>
+                    <span style="color: #999; font-size: 12px; margin-left: auto;">ID: {{ event.id }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            No Book Club events found. Add one above!
+        </div>
+        {% endif %}
+
         <!-- Add Event Form -->
         <div class="admin-card">
-            <h2 class="admin-card-title">Add New Event</h2>
+            <h2 class="admin-card-title">Add New Library Event</h2>
             <form action="/admin/events/add" method="POST" class="admin-form">
                 <input type="hidden" name="pin" value="{{ pin }}">
 
@@ -167,7 +330,7 @@
         {% endif %}
 
         <!-- Events List -->
-        <h2 class="section-title">Current Events</h2>
+        <h2 class="section-title">Current Library Events</h2>
 
         {% if events %}
         <div class="events-list">
