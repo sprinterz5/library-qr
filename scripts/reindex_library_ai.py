@@ -34,6 +34,8 @@ class BookRecord:
     title: str
     classification_number: str
     source_row: int
+    subjects: str = ""
+    description: str = ""
 
 
 @dataclass(frozen=True)
@@ -143,11 +145,20 @@ def load_books(
                 return None
             return row[idx]
 
+        def first_field(*names: str) -> Any:
+            for name in names:
+                value = field(name)
+                if normalize_text(value):
+                    return value
+            return None
+
         author = normalize_text(field("Personal_name"))
         title = clean_title(field("Title"))
         classification = clean_classification(field("Classification_number"))
         if not classification:
             classification = clean_classification(field("Item_number"))
+        subjects = normalize_text(first_field("Subjects", "Subject", "Keywords", "Keyword"))
+        description = normalize_text(first_field("Description", "Annotation", "Summary", "Abstract"))
 
         if not author and not title:
             stats["empty_title_author_skipped"] += 1
@@ -177,9 +188,48 @@ def load_books(
                 title=title,
                 classification_number=classification,
                 source_row=source_row,
+                subjects=subjects,
+                description=description,
             )
         )
 
+    return books, stats
+
+
+def load_books_from_clean_csv(csv_path: Path) -> tuple[list[BookRecord], dict[str, int]]:
+    books: list[BookRecord] = []
+    with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        required = {"author", "title", "classification_number", "source_row"}
+        missing = required - set(reader.fieldnames or [])
+        if missing:
+            raise ValueError(f"Missing required CSV columns: {', '.join(sorted(missing))}")
+
+        for fallback_row, row in enumerate(reader, start=2):
+            raw_source_row = normalize_text(row.get("source_row"))
+            try:
+                source_row = int(raw_source_row)
+            except ValueError:
+                source_row = fallback_row
+            books.append(
+                BookRecord(
+                    author=normalize_text(row.get("author")),
+                    title=clean_title(row.get("title")),
+                    classification_number=clean_classification(row.get("classification_number")),
+                    source_row=source_row,
+                    subjects=normalize_text(row.get("subjects")),
+                    description=normalize_text(row.get("description")),
+                )
+            )
+
+    stats = {
+        "source_rows": len(books),
+        "loaded_from_clean_csv": len(books),
+        "missing_classification_skipped": 0,
+        "title_author_equal_skipped": 0,
+        "empty_title_author_skipped": 0,
+        "duplicates_skipped": 0,
+    }
     return books, stats
 
 
@@ -188,7 +238,7 @@ def write_clean_catalog_csv(books: list[BookRecord], output_path: Path) -> None:
     with output_path.open("w", encoding="utf-8-sig", newline="") as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=["author", "title", "classification_number", "source_row"],
+            fieldnames=["author", "title", "classification_number", "subjects", "description", "source_row"],
         )
         writer.writeheader()
         for book in books:
@@ -197,6 +247,8 @@ def write_clean_catalog_csv(books: list[BookRecord], output_path: Path) -> None:
                     "author": book.author,
                     "title": book.title,
                     "classification_number": book.classification_number,
+                    "subjects": book.subjects,
+                    "description": book.description,
                     "source_row": book.source_row,
                 }
             )
@@ -264,6 +316,10 @@ def build_book_vector_records(books: list[BookRecord]) -> list[VectorRecord]:
             "Classification number / Shelf number / Номер классификации / Полочный номер: "
             f"{book.classification_number}."
         )
+        if book.subjects:
+            text += f" Subjects: {book.subjects}."
+        if book.description:
+            text += f" Description: {book.description}."
         record_id = stable_id(
             "book",
             book.author,
@@ -280,6 +336,8 @@ def build_book_vector_records(books: list[BookRecord]) -> list[VectorRecord]:
                     "title": title,
                     "author": author,
                     "classification_number": book.classification_number,
+                    "subjects": book.subjects,
+                    "description": book.description,
                     "source_row": book.source_row,
                     "text_preview": text,
                 },
@@ -414,8 +472,14 @@ def upsert_records(
 
     if clear:
         print(f"Deleting all records in namespace {namespace or '<default>'}...")
-        index.delete(delete_all=True, **namespace_kwargs)
-        time.sleep(5)
+        try:
+            index.delete(delete_all=True, **namespace_kwargs)
+            time.sleep(5)
+        except Exception as exc:
+            if "Namespace not found" in str(exc):
+                print("Namespace does not exist yet; continuing with first upload.")
+            else:
+                raise
 
     total = 0
     for start in range(0, len(prepared_vectors), batch_size):
@@ -457,12 +521,22 @@ def main() -> int:
     load_dotenv(dotenv_path=Path(".env"))
     args = parse_args()
 
-    books, book_stats = load_books(
-        args.excel,
-        keep_missing_classification=args.keep_missing_classification,
-        keep_title_author_equals=args.keep_title_author_equals,
-    )
-    write_clean_catalog_csv(books, args.clean_csv)
+    if args.excel.exists():
+        books, book_stats = load_books(
+            args.excel,
+            keep_missing_classification=args.keep_missing_classification,
+            keep_title_author_equals=args.keep_title_author_equals,
+        )
+        write_clean_catalog_csv(books, args.clean_csv)
+    elif args.clean_csv.exists():
+        print(f"Excel catalog not found at {args.excel}; using clean CSV {args.clean_csv}.")
+        books, book_stats = load_books_from_clean_csv(args.clean_csv)
+    else:
+        print(
+            f"Catalog file missing. Add {args.excel} or {args.clean_csv}.",
+            file=sys.stderr,
+        )
+        return 2
 
     vector_records = []
     vector_records.extend(build_book_vector_records(books))
