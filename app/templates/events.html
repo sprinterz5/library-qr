@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}All Events | Coventry University Kazakhstan Library{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="description" content="Past and future Coventry University Kazakhstan Library events, organised by month." />
+<link rel="stylesheet" href="/static/css/main.css">
+{% endblock %}
+
+{% block content %}
+<header class="header">
+    <div class="header-container">
+        <a href="/" class="header-logo"><img src="/img/logo.png" alt="Coventry University Kazakhstan" /></a>
+        <div class="header-divider"></div>
+        <div class="header-title">Coventry University Kazakhstan Library</div>
+        <nav class="header-nav"><a href="/" class="header-nav-link">← Home</a><a href="/events" class="header-nav-link active">📅 Events</a></nav>
+    </div>
+</header>
+
+<main class="events-page">
+    <section class="events-page-hero">
+        <p class="events-eyebrow">Library calendar</p>
+        <h1>All past &amp; future events</h1>
+        <p>Browse planned library events by month, then revisit our completed events below.</p>
+    </section>
+
+    <section class="events-months" aria-labelledby="future-events-title">
+        <div class="events-section-heading">
+            <div><p class="events-eyebrow">Coming up</p><h2 id="future-events-title">Events from this month to May</h2></div>
+        </div>
+        {% for month in month_groups %}
+        <section class="month-section" id="{{ month.key }}">
+            <h3>{{ month.label }}</h3>
+            {% if month.events %}
+            <div class="events-grid">
+                {% for event in month.events %}
+                <article class="event-card" style="--event-color: {{ event.color|default('var(--primary)') }};">
+                    <p class="event-card-type">{{ event.type.replace('_', ' ') }}</p>
+                    <h3>{{ event.title }}</h3>
+                    {% if event.description %}<p class="event-card-format">{{ event.description }}</p>{% endif %}
+                    <div class="event-card-meta"><span>🗓️ {{ event.date_display or (event.event_date or '').replace('T', ' ') }}</span><span>📍 {{ event.location or 'Library' }}</span></div>
+                    {% set reg_link = get_event_registration_link(event) %}
+                    {% if reg_link %}<a href="{{ reg_link }}" target="_blank" class="event-card-register">Register <span aria-hidden="true">→</span></a>{% endif %}
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="month-empty">No events scheduled for this month yet.</p>
+            {% endif %}
+        </section>
+        {% endfor %}
+    </section>
+
+    <section class="events-archive" aria-labelledby="past-events-title">
+        <div class="events-section-heading">
+            <div><p class="events-eyebrow">Archive</p><h2 id="past-events-title">Past events</h2></div>
+            <p>Completed events are grouped separately by month.</p>
+        </div>
+        {% if past_groups %}
+            {% for month in past_groups %}
+            <section class="month-section month-section-past">
+                <h3>{{ month.label }}</h3>
+                <div class="events-grid">
+                    {% for event in month.events %}
+                    <article class="event-card event-card-past" style="--event-color: {{ event.color|default('var(--primary)') }};">
+                        <p class="event-card-type">{{ event.type.replace('_', ' ') }}</p>
+                        <h3>{{ event.title }}</h3>
+                        {% if event.description %}<p class="event-card-format">{{ event.description }}</p>{% endif %}
+                        <div class="event-card-meta"><span>🗓️ {{ event.date_display or (event.event_date or '').replace('T', ' ') }}</span><span>📍 {{ event.location or 'Library' }}</span></div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+            {% endfor %}
+        {% else %}
+        <p class="month-empty">There are no past events to show yet.</p>
+        {% endif %}
+    </section>
+</main>
+
+<footer class="footer"><p>© 2025 Coventry University Kazakhstan Library</p></footer>
+{% endblock %}
