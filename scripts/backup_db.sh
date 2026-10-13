@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env bash
+#!/usr/bin/env bash
 # Daily backup of gateway.db to a location OUTSIDE any git repo,
 # so `git clean`/`git reset --hard`/redeploys can never touch backups.
 set -euo pipefail
@@ -6,6 +6,9 @@ set -euo pipefail
 SRC_DB="/home/aidar/elibra-middleware/data/gateway.db"
 BACKUP_DIR="/home/aidar/elibra-backups/gateway-db"
 KEEP_DAYS=30
+# Never prune the newest KEEP_MIN backups, however old: if the timer stops
+# for weeks, the last good copies must survive the next run.
+KEEP_MIN=7
 TS="$(date +%Y%m%d-%H%M%S)"
 DEST="$BACKUP_DIR/gateway-$TS.db"
 
@@ -53,4 +56,6 @@ for t in tables:
 PY
 fi
 
-find "$BACKUP_DIR" -name 'gateway-*.db' -mtime "+$KEEP_DAYS" -delete
+ls -1t "$BACKUP_DIR"/gateway-*.db 2>/dev/null | tail -n "+$((KEEP_MIN + 1))" | while read -r f; do
+    if [ -n "$(find "$f" -mtime "+$KEEP_DAYS" 2>/dev/null)" ]; then rm -f -- "$f"; fi
+done
