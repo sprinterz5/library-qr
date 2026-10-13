@@ -1,99 +1,75 @@
 {% extends "admin/base.html" %}
+{% set active_nav = "stats" %}
 
 {% block title %}Admin — Statistics{% endblock %}
 
 {% block admin_content %}
-<div class="header">
-    <h1>📊 Статистика системы</h1>
-    <div style="font-size:14px;">
-        <a href="/admin/returns" class="back-link">Return Requests</a> •
-        <a href="/admin/events" class="back-link">Events</a>
+<div class="page-head">
+    <div>
+        <h1>Statistics</h1>
+        <p>Books issued and returned through the QR system.</p>
     </div>
 </div>
 
 <div class="stats-grid">
     <div class="stat-card">
-        <div class="stat-value" style="color: var(--success);">{{ total_issued }}</div>
-        <div class="stat-label">Выдано книг</div>
+        <div class="stat-value" style="color: var(--primary);">{{ total_issued }}</div>
+        <div class="stat-label">Books issued</div>
     </div>
     <div class="stat-card">
         <div class="stat-value" style="color: var(--success);">{{ total_approved }}</div>
-        <div class="stat-label">Возвращено</div>
+        <div class="stat-label">Returned</div>
     </div>
     <div class="stat-card">
         <div class="stat-value" style="color: var(--warning);">{{ total_pending }}</div>
-        <div class="stat-label">Ожидают возврата</div>
+        <div class="stat-label">Waiting for return</div>
     </div>
     <div class="stat-card">
         <div class="stat-value" style="color: var(--danger);">{{ total_rejected }}</div>
-        <div class="stat-label">Отклонено</div>
+        <div class="stat-label">Rejected</div>
     </div>
 </div>
 
-<div class="section" style="margin: 24px 0;">
-    <div class="section-title"
-        style="font-size: 18px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border);">
-        📚 Последние выданные книги ({{ issued_books|length }})
-    </div>
-    {% if issued_books %}
-    {% for book in issued_books %}
-    <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-        <div>
-            <div class="card-header">
-                <b>#{{ book['id'] }}</b>
-                <span class="pill-id">{{ book['barcode'] }}</span>
-            </div>
-            <div class="row-small">Reader ID: {{ book['reader_id'] or "" }}</div>
-            <div class="row-small">Card: {{ book['card_barcode'] or "" }}</div>
-            <div class="row-small">Loan days: {{ book['loan_days'] }}</div>
-            <div class="row-small">Issued: {{ book['issued_at'] }}</div>
-        </div>
-        {% if book['card_barcode'] and book['card_barcode']|length >= 5 %}
-        <div style="font-size:28px; font-weight:700; color:var(--text-dark); letter-spacing:-0.5px; margin-left:12px;">
-            {{ book['card_barcode'][-5:] }}
-        </div>
-        {% endif %}
-    </div>
-    {% endfor %}
-    {% else %}
-    <p style="text-align:center;color:var(--text-muted);">Нет выданных книг</p>
-    {% endif %}
-</div>
-
-<div class="section" style="margin: 24px 0;">
-    <div class="section-title"
-        style="font-size: 18px; font-weight: 600; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border);">
-        ↩️ Все заявки на возврат ({{ all_returns|length }})
-    </div>
-    {% if all_returns %}
-    {% for ret in all_returns %}
-    <div class="card">
+<div class="section-title">📚 Latest issued books <span class="count">{{ issued_books|length }}</span></div>
+{% if issued_books %}
+{% for book in issued_books %}
+<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+    <div>
         <div class="card-header">
-            <b>Request #{{ ret['id'] }}</b>
-            <span class="pill-id">{{ ret['barcode'] }}</span>
-            {% set status_color = "#666" %}
-            {% if ret['status'] == "PENDING" %}{% set status_color = "var(--warning)" %}{% endif %}
-            {% if ret['status'] == "APPROVED" %}{% set status_color = "var(--success)" %}{% endif %}
-            {% if ret['status'] == "REJECTED" %}{% set status_color = "var(--danger)" %}{% endif %}
-
-            <span
-                style="--status-bg: {{ status_color }}; padding:2px 8px;border-radius:999px;background:var(--status-bg);color:#fff;font-size:11px;">
-                {{ ret['status'] }}
-            </span>
+            <b>#{{ book['id'] }}</b>
+            <span class="pill-id">{{ book['barcode'] }}</span>
         </div>
-        <div class="row-small">Reader ID: <code>{{ ret['reader_id'] or "" }}</code></div>
-        <div class="row-small">Created: {{ ret['created_at'] }}</div>
-        {% if ret['approved_at'] %}
-        <div class="row-small">Approved: {{ ret['approved_at'] }}</div>
-        {% endif %}
+        <div class="row-small">Reader ID {{ book['reader_id'] or "—" }} · Card {{ book['card_barcode'] or "—" }} · {{ book['loan_days'] }} days</div>
+        <div class="row-small">Issued {{ (book['issued_at'] or '')[:16]|replace('T', ' ') }}</div>
     </div>
-    {% endfor %}
-    {% else %}
-    <p style="text-align:center;color:var(--text-muted);">Нет заявок</p>
+    {% if book['card_barcode'] and book['card_barcode']|length >= 5 %}
+    <div class="card-tail">{{ book['card_barcode'][-5:] }}</div>
     {% endif %}
 </div>
+{% endfor %}
+{% else %}
+<div class="empty-state">No books issued yet.</div>
+{% endif %}
 
-<div style="text-align:center;margin-top:32px;">
-    <a href="/admin/returns" class="back-link">← Back to pending returns</a>
+<div class="section-title">↩️ Return requests <span class="count">{{ all_returns|length }}</span></div>
+{% if all_returns %}
+{% for ret in all_returns %}
+<div class="card">
+    <div class="card-header">
+        <b>Request #{{ ret['id'] }}</b>
+        <span style="display:flex; gap:8px; align-items:center;">
+            <span class="pill-id">{{ ret['barcode'] }}</span>
+            <span class="status-pill status-{{ ret['status'] }}">{{ ret['status'] }}</span>
+        </span>
+    </div>
+    {% if ret['reader_id'] %}<div class="row-small">Reader ID <code>{{ ret['reader_id'] }}</code></div>{% endif %}
+    <div class="row-small">
+        Created {{ (ret['created_at'] or '')[:16]|replace('T', ' ') }}
+        {% if ret['approved_at'] %} · Decided {{ ret['approved_at'][:16]|replace('T', ' ') }}{% endif %}
+    </div>
 </div>
+{% endfor %}
+{% else %}
+<div class="empty-state">No return requests yet.</div>
+{% endif %}
 {% endblock %}

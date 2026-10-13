@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+{# Admin shell: top bar with section tabs, useful links column, page content.
+   A child sets `{% set active_nav = "events" %}` to highlight its tab, or
+   `{% set bare = true %}` (sign-in page) to get just the top bar. #}
 
 {% block head %}
 {{ super() }}
@@ -6,15 +9,38 @@
 {% endblock %}
 
 {% block content %}
-<div class="header">
-    <img src="/img/logo.png" alt="Coventry University" />
-    <div class="header-title">Admin Panel</div>
-    {% block header_actions %}
-    <form method="POST" action="/admin/logout" class="admin-logout-form">
-        <button type="submit" class="admin-logout-btn">Log out</button>
+<header class="adm-top">
+    <a href="/admin/returns" class="adm-brand">
+        <img src="/img/logo.png" alt="" />
+        <span>Library Admin</span>
+    </a>
+    {% if not bare %}
+    <nav class="adm-tabs">
+        <a href="/admin/returns" class="{{ 'active' if active_nav == 'returns' }}">Returns</a>
+        <a href="/admin/search" class="{{ 'active' if active_nav == 'search' }}">Readers</a>
+        <a href="/admin/stats" class="{{ 'active' if active_nav == 'stats' }}">Stats</a>
+        <a href="/admin/events" class="{{ 'active' if active_nav == 'events' }}">Events</a>
+    </nav>
+    <form method="POST" action="/admin/logout" class="adm-logout">
+        <button type="submit">Log out</button>
     </form>
-    {% endblock %}
-</div>
+    {% endif %}
+</header>
 
-{% block admin_content %}{% endblock %}
+{% if bare %}
+<main class="adm-main adm-main-bare">{% block admin_content %}{% endblock %}</main>
+{% else %}
+<div class="adm-body">
+    <aside class="adm-side">
+        <div class="adm-side-title">Useful links</div>
+        <a href="https://library.coventry.edu.kz" target="_blank" rel="noopener">🏠 Main site</a>
+        <a href="https://library.coventry.edu.kz/scan" target="_blank" rel="noopener">📷 Scan QR</a>
+        <a href="https://livecoventryac-my.sharepoint.com/:x:/r/personal/begotayeva_uni_coventry_ac_uk/_layouts/15/Doc.aspx?sourcedoc=%7B385703D7-5925-431B-9833-BF294D6C2B63%7D&amp;file=1-Question%20Library%20Attendance%20Form.xlsx&amp;action=edit&amp;mobileredirect=true&amp;wdMsFormsCorrelationId=7b90d30c-012c-47d8-beae-7621d989c0a5&amp;wdtf=%20Microsoft.Office.Excel.FMsFormsMetadataInWorkbookMetadata%3Atrue" target="_blank" rel="noopener">📈 Library attendance (Excel)</a>
+        <a href="https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?subpage=design&amp;FormId=mqsYS2U3vkqsfA4NOYr9T7p1LDUXqrlFnimDlw-z3yFUNkpEVkpVNUxNRUNBS1VWNlIzTzlMUVlQVi4u" target="_blank" rel="noopener">📝 Microsoft Form 1 (edit)</a>
+        <a href="https://forms.office.com/Pages/DesignPageV2.aspx?origin=NeoPortalPage&amp;subpage=design&amp;id=Wo9Ue8MLGEi2FKwGqF9k6bbiSE26FBRJuEFilMqojlxUQjhEODBGVk5KQzZKMldEVlZLWjMzSDZGVy4u&amp;analysis=false" target="_blank" rel="noopener">📝 Microsoft Form 2 (edit)</a>
+        <a href="https://docs.google.com/spreadsheets/d/1iGwEqBwSSNgq77v0nmaudP9XOBdA-HpgWxCnCnYXWXY/edit?usp=sharing" target="_blank" rel="noopener">📊 Spreadsheet (Google Sheets)</a>
+    </aside>
+    <main class="adm-main">{{ self.admin_content() }}</main>
+</div>
+{% endif %}
 {% endblock %}

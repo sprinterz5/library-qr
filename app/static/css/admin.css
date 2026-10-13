@@ -1,298 +1,422 @@
-  /* Common Admin Styles */
-  body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 24px;
-      background: var(--bg-light);
-      color: var(--text-dark);
-      line-height: 1.6;
-  }
+/* ===================== Library admin ===================== */
+:root {
+    --primary: #0055B7;
+    --primary-dark: #003d82;
+    --primary-soft: #eff6ff;
+    --bg-light: #f4f6fa;
+    --bg-white: #ffffff;
+    --text-dark: #1e293b;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #dc2626;
+    --radius: 12px;
+}
 
-  :root {
-      --primary: #0055B7;
-      --primary-dark: #003d82;
-      --bg-light: #f8fafc;
-      --bg-white: #ffffff;
-      --text-dark: #1e293b;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #dc2626;
-  }
+* { box-sizing: border-box; }
 
-  /* Header */
-  .header {
-      background: var(--bg-white);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 24px;
-      margin: -24px -24px 24px -24px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-  }
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.55;
+}
 
-  .header img {
-      height: 36px;
-  }
+a { color: var(--primary); }
 
-  .header-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--primary);
-  }
+/* ---------- Shell: top bar ---------- */
+.adm-top {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 10px 24px;
+    background: var(--bg-white);
+    border-bottom: 1px solid var(--border);
+}
 
-  h2 {
-      margin: 0 0 16px;
-      font-size: 22px;
-      text-align: center;
-      color: var(--text-dark);
-  }
+.adm-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--primary);
+    white-space: nowrap;
+}
 
-  /* Cards */
-  .card {
-      border-radius: 12px;
-      padding: 16px;
-      margin: 12px 0;
-      background: var(--bg-white);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      border: 1px solid var(--border);
-  }
+.adm-brand img { height: 34px; }
 
-  .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-      font-size: 14px;
-      gap: 8px;
-      flex-wrap: wrap;
-  }
+.adm-tabs {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
 
-  .card-header b {
-      font-size: 16px;
-      color: var(--text-dark);
-  }
+.adm-tabs a {
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
 
-  /* Utilities */
-  .pill-id {
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #eff6ff;
-      color: var(--primary);
-      font-size: 12px;
-      font-weight: 500;
-  }
+.adm-tabs a:hover { background: var(--bg-light); color: var(--text-dark); }
+.adm-tabs a.active { background: var(--primary-soft); color: var(--primary); }
 
-  .row-small {
-      font-size: 13px;
-      margin: 4px 0;
-      word-break: break-all;
-      color: var(--text-muted);
-  }
+.adm-logout { margin: 0; }
+.adm-logout button {
+    width: auto;
+    margin: 0;
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-white);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+.adm-logout button:hover { border-color: var(--primary); color: var(--primary); }
 
-  .row-small code {
-      background: var(--bg-light);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 12px;
-  }
+/* ---------- Shell: body = useful links + content ---------- */
+.adm-body {
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 28px;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 24px;
+}
 
-  /* Buttons & Nav */
-  .nav-links {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-top: 12px;
-  }
+.adm-side {
+    position: sticky;
+    top: 78px;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
 
-  .nav-link,
-  .back-link {
-      display: inline-block;
-      padding: 10px 18px;
-      background: var(--primary);
-      color: #fff;
-      text-decoration: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      transition: background 0.2s;
-  }
+.adm-side-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
 
-  .nav-link:hover,
-  .back-link:hover {
-      background: var(--primary-dark);
-  }
+.adm-side a {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+}
+.adm-side a:hover { border-color: var(--primary); color: var(--primary); }
 
-  /* Useful links on the admin home (returns page): a column pinned to the
-     left edge on wide screens, a stacked list above the requests on narrow ones */
-  .useful-links {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      max-width: 360px;
-      margin: 18px auto 0;
-      text-align: left;
-  }
+.adm-main { min-width: 0; }
+.adm-main-bare { max-width: 420px; margin: 0 auto; padding: 24px; }
 
-  .useful-links-title {
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--text-muted);
-      margin-bottom: 2px;
-  }
+/* ---------- Page header ---------- */
+.page-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
 
-  .useful-links a {
-      display: block;
-      padding: 9px 12px;
-      border: 1px solid var(--primary);
-      border-radius: 8px;
-      color: var(--primary);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      background: #fff;
-  }
+.page-head h1 { margin: 0; font-size: 24px; }
+.page-head p { margin: 4px 0 0; color: var(--text-muted); font-size: 14px; }
 
-  .useful-links a:hover {
-      background: var(--primary);
-      color: #fff;
-  }
+h2 { font-size: 18px; margin: 0 0 12px; }
 
-  @media (min-width: 1520px) {
-      .useful-links {
-          position: fixed;
-          top: 110px;
-          left: 24px;
-          width: 230px;
-          margin: 0;
-          z-index: 5;
-      }
-  }
+/* ---------- Cards & lists ---------- */
+.card {
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin: 0 0 12px;
+}
 
-  /* Sign in / sign out */
-  .admin-logout-form { margin-left: auto; }
-  .admin-logout-btn {
-      background: none;
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 13px;
-      cursor: pointer;
-  }
-  .admin-login { max-width: 340px; margin: 40px auto; text-align: center; }
-  .admin-login form { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
-  .admin-login input[type=password] {
-      padding: 10px 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 16px;
-      text-align: center;
-  }
-  .admin-login .nav-link { border: none; cursor: pointer; }
-  .admin-login-error { color: #b91c1c; font-size: 14px; }
-  .admin-login-hint { color: var(--text-muted); font-size: 12px; margin-top: 12px; }
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+.card-header b { font-size: 16px; }
 
-  .btn-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 14px;
-  }
+.pill-id {
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 600;
+}
 
-  .btn-row form {
-      flex: 1;
-  }
+.status-pill {
+    padding: 2px 9px;
+    border-radius: 999px;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+.status-PENDING { background: var(--warning); }
+.status-APPROVED { background: var(--success); }
+.status-REJECTED { background: var(--danger); }
 
-  button.admin-btn {
-      display: block;
-      width: 100%;
-      padding: 12px 10px;
-      border-radius: 8px;
-      border: none;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
-      transition: background 0.2s;
-  }
+.row-small {
+    font-size: 13px;
+    margin: 3px 0;
+    color: var(--text-muted);
+    word-break: break-word;
+}
+.row-small code { background: var(--bg-light); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
 
-  button.approve {
-      background: var(--success);
-      color: #fff;
-  }
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    margin: 28px 0 12px;
+}
+.section-title .count {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 1px 8px;
+}
 
-  button.approve:hover {
-      background: #059669;
-  }
+.empty-state {
+    padding: 28px 16px;
+    text-align: center;
+    color: var(--text-muted);
+    background: var(--bg-white);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+}
 
-  button.reject {
-      background: var(--warning);
-      color: #fff;
-  }
+/* ---------- Buttons ---------- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: auto;
+    margin: 0;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-ghost { background: var(--bg-white); border-color: var(--border); color: var(--text-dark); }
+.btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
 
-  button.reject:hover {
-      background: #d97706;
-  }
+.btn-icon {
+    width: auto;
+    margin: 0;
+    padding: 6px 9px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-white);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+}
+.btn-icon.danger:hover { border-color: var(--danger); background: #fef2f2; }
 
-  /* Stats Grid */
-  .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin-bottom: 24px;
-  }
+.btn-row { display: flex; gap: 10px; margin-top: 12px; }
+.btn-row form { flex: 1; margin: 0; }
 
-  .stat-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  }
+button.approve, button.reject {
+    width: 100%;
+    margin: 0;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+button.approve { background: var(--success); }
+button.approve:hover { background: #059669; }
+button.reject { background: var(--warning); }
+button.reject:hover { background: #d97706; }
 
-  .stat-value {
-      font-size: 32px;
-      font-weight: 700;
-      margin: 8px 0;
-  }
+/* ---------- Forms ---------- */
+.admin-form { display: flex; flex-direction: column; gap: 14px; }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label, .field-label { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+.hint { font-size: 12px; color: var(--text-muted); }
 
-  .stat-label {
-      font-size: 13px;
-      color: #666;
-  }
+.adm-main input:not([type=checkbox]):not([type=radio]):not([type=file]),
+.adm-main select,
+.adm-main textarea,
+.adm-main-bare input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    font: inherit;
+    font-size: 14px;
+    color: var(--text-dark);
+}
+.adm-main input:focus, .adm-main select:focus, .adm-main textarea:focus, .adm-main-bare input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0, 85, 183, 0.12);
+}
+.adm-main textarea { resize: vertical; }
 
-  /* Forms */
-  input,
-  button {
-      width: 100%;
-      padding: 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      box-sizing: border-box;
-  }
+/* "When" block: exact date OR month/year OR free text */
+.when-box {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+    background: var(--bg-light);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-  button {
-      margin-top: 8px;
-      font-weight: 600;
-      cursor: pointer;
-  }
+/* Collapsible "Add …" panel */
+details.add-panel {
+    background: var(--bg-white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+}
+details.add-panel > summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    font-weight: 700;
+    color: var(--primary);
+}
+details.add-panel > summary::-webkit-details-marker { display: none; }
+details.add-panel > summary::before { content: "＋ "; }
+details.add-panel[open] > summary::before { content: "－ "; }
+details.add-panel[open] > summary { border-bottom: 1px solid var(--border); }
+details.add-panel > .admin-form { padding: 16px; }
 
-  /* Mobile */
-  @media (max-width: 480px) {
-      body {
-          padding: 16px;
-      }
+/* ---------- Tabs inside a page (events) ---------- */
+.page-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+.page-tabs button {
+    width: auto;
+    margin: 0 0 -1px;
+    padding: 10px 14px;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 0;
+    background: none;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+}
+.page-tabs button.active { color: var(--primary); border-bottom-color: var(--primary); }
+.page-tabs .count { font-weight: 500; opacity: 0.7; }
+.tab-panel[hidden] { display: none; }
 
-      .header {
-          margin: -16px -16px 16px -16px;
-      }
+/* ---------- Event list ---------- */
+.event-item {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    border-left: 4px solid var(--event-color, var(--primary));
+}
+.event-body { flex: 1; min-width: 0; }
+.event-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--event-color, var(--primary));
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    margin-bottom: 4px;
+}
+.event-item h3 { margin: 0; font-size: 16px; }
+.event-desc { margin: 6px 0 0; font-size: 14px; color: var(--text-muted); white-space: pre-line; }
+.event-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 13px; color: var(--text-muted); }
 
-      .card {
-          padding: 12px;
-      }
-  }
+/* ---------- VIP grid ---------- */
+.vip-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+.vip-admin-item { padding: 0; overflow: hidden; position: relative; margin: 0; }
+.vip-admin-photo { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; background: var(--bg-light); }
+.vip-admin-info { padding: 10px 12px; }
+.vip-admin-info h3 { margin: 0; font-size: 14px; }
+.vip-admin-info p { margin: 2px 0 0; font-size: 12px; color: var(--text-muted); }
+.vip-admin-item .btn-icon { position: absolute; top: 8px; right: 8px; }
+
+/* ---------- Stats ---------- */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 8px; }
+.stat-card { background: var(--bg-white); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+.stat-value { font-size: 30px; font-weight: 700; line-height: 1.1; }
+.stat-label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.card-tail { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; color: var(--text-dark); margin-left: 12px; }
+
+/* ---------- Sign in ---------- */
+.admin-login { text-align: center; margin-top: 40px; padding: 28px; }
+.admin-login h1 { font-size: 20px; margin: 0 0 6px; }
+.admin-login form { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.admin-login input[type=password] { text-align: center; font-size: 16px; }
+.admin-login-error { color: var(--danger); font-size: 14px; margin: 8px 0 0; }
+.admin-login-hint { color: var(--text-muted); font-size: 12px; margin: 14px 0 0; }
+
+/* ---------- Narrow screens: links go above the content ---------- */
+@media (max-width: 900px) {
+    .adm-top { flex-wrap: wrap; gap: 10px; padding: 10px 14px; }
+    .adm-tabs { order: 3; flex-basis: 100%; }
+    .adm-logout { margin-left: auto; }
+    .adm-body { grid-template-columns: 1fr; padding: 14px; gap: 16px; }
+    .adm-side { position: static; flex-direction: row; flex-wrap: wrap; }
+    .adm-side-title { flex-basis: 100%; }
+    .adm-side a { flex: 1 1 45%; }
+    .card { padding: 12px; }
+}

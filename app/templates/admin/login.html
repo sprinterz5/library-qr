@@ -1,18 +1,17 @@
 {% extends "admin/base.html" %}
+{% set bare = true %}
 
 {% block title %}Admin — Sign in{% endblock %}
 
-{% block header_actions %}{% endblock %}
-
 {% block admin_content %}
 <div class="card admin-login">
-    <h2>Librarian sign in</h2>
+    <h1>Librarian sign in</h1>
     {% if error == "wrong" %}<p class="admin-login-error">Wrong PIN.</p>{% endif %}
     {% if error == "locked" %}<p class="admin-login-error">Too many attempts. Try again in 15 minutes.</p>{% endif %}
     <form method="POST" action="/admin/login">
         <input type="hidden" name="next" value="{{ next }}">
         <input type="password" name="pin" placeholder="PIN" autocomplete="current-password" autofocus required>
-        <button type="submit" class="nav-link">Sign in</button>
+        <button type="submit" class="btn btn-primary">Sign in</button>
     </form>
     <p class="admin-login-hint">You stay signed in on this device for 30 days.</p>
 </div>

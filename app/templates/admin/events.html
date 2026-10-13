@@ -1,559 +1,279 @@
-{% extends "base.html" %}
+{% extends "admin/base.html" %}
+{% set active_nav = "events" %}
 
-{% block title %}Events Management | Admin{% endblock %}
+{% block title %}Admin — Events{% endblock %}
 
-{% block head %}
-{{ super() }}
-<link rel="stylesheet" href="/static/css/admin.css">
-{% endblock %}
-
-{% block content %}
-<div class="admin-wrapper">
-    <div class="admin-sidebar">
-        <div class="admin-logo">Admin Panel</div>
-        <nav class="admin-nav">
-            <a href="/admin/returns" class="admin-nav-item">Returns</a>
-            <a href="/admin/search" class="admin-nav-item">Search</a>
-            <a href="/admin/stats" class="admin-nav-item">Statistics</a>
-            <a href="/admin/events" class="admin-nav-item active">Events</a>
-        </nav>
+{% macro when_fields() %}
+<div class="when-box">
+    <span class="field-label">When</span>
+    <div class="form-row">
+        <div class="form-group">
+            <label>Exact date and time</label>
+            <input type="datetime-local" name="event_date" min="2025-01-01T00:00">
+        </div>
+        <div class="form-group">
+            <label>…or only month and year</label>
+            <div class="form-row" style="grid-template-columns: 1fr 1fr; gap: 8px;">
+                <select name="event_month_value">
+                    <option value="">Month</option>
+                    {% for m in ["January","February","March","April","May","June","July","August","September","October","November","December"] %}
+                    <option value="{{ '%02d'|format(loop.index) }}">{{ m }}</option>
+                    {% endfor %}
+                </select>
+                <select name="event_year_value">
+                    <option value="">Year</option>
+                    {% for year in range(2025, 2036) %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
     </div>
-
-    <main class="admin-content">
-        <div class="admin-header">
-            <h1 class="admin-title">Manage Events</h1>
-            <a href="/admin/returns" class="admin-logout">Back to Site</a>
-        </div>
-
-        <!-- Book Club Page Settings -->
-        <div class="admin-card">
-            <h2 class="admin-card-title">Book Club Page Settings</h2>
-            <form action="/admin/book-club/settings" method="POST" class="admin-form">
-
-                <div class="form-group">
-                    <label>Page Title</label>
-                    <input type="text" name="title" required
-                        value="{{ book_club_settings.title or "Book Club's Page" }}">
-                </div>
-
-                <div class="form-group">
-                    <label>Intro Text</label>
-                    <textarea name="subtitle" rows="3">{{ book_club_settings.subtitle or "" }}</textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Instagram Link</label>
-                        <input type="url" name="instagram_url" placeholder="https://instagram.com/..."
-                            value="{{ book_club_settings.instagram_url or "" }}">
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" placeholder="library@coventry.edu.kz"
-                            value="{{ book_club_settings.email or "" }}">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Bottom Info Title</label>
-                    <input type="text" name="contact_title"
-                        value="{{ book_club_settings.contact_title or "Need More Information?" }}">
-                </div>
-
-                <div class="form-group">
-                    <label>Bottom Info Text</label>
-                    <textarea name="contact_text" rows="3">{{ book_club_settings.contact_text or "" }}</textarea>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Save Book Club Page</button>
-            </form>
-        </div>
-
-        <!-- Add Book Club Event Form -->
-        <div class="admin-card book-club-admin-card">
-            <h2 class="admin-card-title">Add Book Club Event</h2>
-            <form action="/admin/book-club/events/add" method="POST" class="admin-form">
-
-                <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" name="title" required placeholder="e.g. Book Discussion: Atomic Habits">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Location</label>
-                        <input type="text" name="location" value="Library" placeholder="e.g. Library">
-                    </div>
-                    <div class="form-group">
-                        <label>Color</label>
-                        <select name="color">
-                            <option value="#92400e">Book Club Brown</option>
-                            <option value="var(--primary)">Blue (Primary)</option>
-                            <option value="#10b981">Green (Success)</option>
-                            <option value="#f59e0b">Orange (Warning)</option>
-                            <option value="#ef4444">Red (Danger)</option>
-                            <option value="#6366f1">Indigo</option>
-                            <option value="#8b5cf6">Purple</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea name="description" rows="3" placeholder="Brief description of the Book Club meeting..."></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Exact Event Date</label>
-                        <input type="datetime-local" name="event_date" min="2025-01-01T00:00">
-                    </div>
-                    <div class="form-group">
-                        <label>Display Text (Optional override)</label>
-                        <input type="text" name="date_display" placeholder="e.g. 'Every Friday' or leave empty">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Event Month (if exact date is unknown)</label>
-                    <div class="form-row">
-                        <select name="event_month_value">
-                            <option value="">Select month</option>
-                            <option value="01">January</option>
-                            <option value="02">February</option>
-                            <option value="03">March</option>
-                            <option value="04">April</option>
-                            <option value="05">May</option>
-                            <option value="06">June</option>
-                            <option value="07">July</option>
-                            <option value="08">August</option>
-                            <option value="09">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
-                        </select>
-                        <select name="event_year_value">
-                            <option value="">Select year</option>
-                            {% for year in range(2025, 2036) %}
-                            <option value="{{ year }}">{{ year }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <small style="color:#64748b; font-size:11px;">Use this only when you know the month and year but not the exact day.</small>
-                </div>
-
-                <div class="form-group">
-                    <label>Registration Link (Optional Override)</label>
-                    <input type="url" name="registration_link"
-                        placeholder="Leave empty for auto-generated MS Forms link">
-                </div>
-
-                <button type="submit" class="btn btn-primary">Add Book Club Event</button>
-            </form>
-        </div>
-
-        <!-- Book Club Events List -->
-        <h2 class="section-title">Book Club Events</h2>
-
-        {% if book_club_events %}
-        <div class="events-list">
-            {% for event in book_club_events %}
-            <div class="admin-card event-item book-club-event-item">
-                <div class="event-header"
-                    style="--event-color: {{ event.color|default('#92400e') }}; border-left: 4px solid var(--event-color); padding-left: 12px;">
-                    <div>
-                        <span class="badge"
-                            style="background: var(--event-color); color: white; opacity: 0.9; margin-bottom: 4px; display: inline-block;">
-                            BOOK CLUB
-                        </span>
-                        <h3 style="margin: 0; font-size: 16px;">{{ event.title }}</h3>
-                    </div>
-                    <button data-id="{{ event.id }}" onclick="deleteEvent(this.dataset.id)" class="btn-icon danger"
-                        title="Delete">🗑️</button>
-                </div>
-                <p class="event-desc">{{ event.description }}</p>
-                <div class="event-meta">
-                    <span>📍 {{ event.location }}</span>
-                    <span>🗓️ {{ event.date_display or (event.event_date or "").replace("T", " ") }}</span>
-                    <span style="color: #999; font-size: 12px; margin-left: auto;">ID: {{ event.id }}</span>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            No Book Club events found. Add one above!
-        </div>
-        {% endif %}
-
-        <!-- Add Event Form -->
-        <div class="admin-card">
-            <h2 class="admin-card-title">Add New Library Event</h2>
-            <form action="/admin/events/add" method="POST" class="admin-form">
-
-                <div class="form-group">
-                    <label>Title</label>
-                    <input type="text" name="title" required placeholder="e.g. Introduction to Library Resources">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Type</label>
-                        <select name="type" required>
-                            <option value="WORKSHOP">WORKSHOP</option>
-                            <option value="TRAINING">TRAINING</option>
-                            <option value="SESSION">SESSION</option>
-                            <option value="ANNOUNCEMENT">ANNOUNCEMENT</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Color</label>
-                        <select name="color">
-                            <option value="var(--primary)">Blue (Primary)</option>
-                            <option value="#10b981">Green (Success)</option>
-                            <option value="#f59e0b">Orange (Warning)</option>
-                            <option value="#ef4444">Red (Danger)</option>
-                            <option value="#6366f1">Indigo</option>
-                            <option value="#8b5cf6">Purple</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Description</label>
-                    <textarea name="description" rows="3" placeholder="Brief description of the event..."></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Location</label>
-                        <input type="text" name="location" value="Library" placeholder="e.g. Library">
-                    </div>
-                    <div class="form-group">
-                        <label>Exact Event Date</label>
-                        <input type="datetime-local" name="event_date" min="2025-01-01T00:00">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Event Month (if exact date is unknown)</label>
-                    <div class="form-row">
-                        <select name="event_month_value">
-                            <option value="">Select month</option>
-                            <option value="01">January</option>
-                            <option value="02">February</option>
-                            <option value="03">March</option>
-                            <option value="04">April</option>
-                            <option value="05">May</option>
-                            <option value="06">June</option>
-                            <option value="07">July</option>
-                            <option value="08">August</option>
-                            <option value="09">September</option>
-                            <option value="10">October</option>
-                            <option value="11">November</option>
-                            <option value="12">December</option>
-                        </select>
-                        <select name="event_year_value">
-                            <option value="">Select year</option>
-                            {% for year in range(2025, 2036) %}
-                            <option value="{{ year }}">{{ year }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <small style="color:#64748b; font-size:11px;">Use this only when you know the month and year but not the exact day.</small>
-                </div>
-                <div class="form-group">
-                    <label>Registration Link (Optional Override):</label>
-                    <input type="url" name="registration_link"
-                        placeholder="Leave empty for auto-generated MS Forms link">
-                    <small style="color:red; font-size:11px;">Paste Google/MS Form link here to override
-                        automation.</small>
-                </div>
-                <div class="form-group">
-                    <label>Display Text (Optional override)</label>
-                    <input type="text" name="date_display" placeholder="e.g. 'Every Friday' or leave empty">
-                </div>
-
-                <button type="submit" class="btn btn-primary">Add Event</button>
-            </form>
-        </div>
-
-        <!-- Add VIP Guest Form -->
-        <div class="admin-card">
-            <h2 class="admin-card-title">Add VIP Guest</h2>
-            <form action="/admin/vip-guests/add" method="POST" enctype="multipart/form-data" class="admin-form">
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Who Was It?</label>
-                        <input type="text" name="name" required placeholder="e.g. Dr. Jane Smith">
-                    </div>
-                    <div class="form-group">
-                        <label>Visit Date</label>
-                        <input type="date" name="visit_date" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Photo</label>
-                    <input type="file" name="photo" accept="image/*" required>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Add VIP Guest</button>
-            </form>
-        </div>
-
-        <!-- VIP Guests List -->
-        <h2 class="section-title">VIP Guests</h2>
-
-        {% if vip_guests %}
-        <div class="vip-admin-grid">
-            {% for guest in vip_guests %}
-            <div class="admin-card vip-admin-item">
-                <img src="{{ guest.photo_url }}" alt="{{ guest.name }}" class="vip-admin-photo">
-                <div class="vip-admin-info">
-                    <h3>{{ guest.name }}</h3>
-                    <p>🗓️ {{ guest.visit_date }}</p>
-                </div>
-                <button data-id="{{ guest.id }}" onclick="deleteVipGuest(this.dataset.id)" class="btn-icon danger"
-                    title="Delete">🗑️</button>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            No VIP guests found. Add one above!
-        </div>
-        {% endif %}
-
-        <!-- Events List -->
-        <h2 class="section-title">Current Library Events</h2>
-
-        {% if events %}
-        <div class="events-list">
-            {% for event in events %}
-            <div class="admin-card event-item">
-                <div class="event-header"
-                    style="--event-color: {{ event.color|default('var(--primary)') }}; border-left: 4px solid var(--event-color); padding-left: 12px;">
-                    <div>
-                        <span class="badge"
-                            style="background: var(--event-color); color: white; opacity: 0.9; margin-bottom: 4px; display: inline-block;">
-                            {{ event.type }}
-                        </span>
-                        <h3 style="margin: 0; font-size: 16px;">{{ event.title }}</h3>
-                    </div>
-                    <button data-id="{{ event.id }}" onclick="deleteEvent(this.dataset.id)" class="btn-icon danger"
-                        title="Delete">🗑️</button>
-                </div>
-                <p class="event-desc">{{ event.description }}</p>
-                <div class="event-meta">
-                    <span>📍 {{ event.location }}</span>
-                    <span>🗓️ {{ event.date_display or (event.event_date or "").replace("T", " ") }}</span>
-                    <span style="color: #999; font-size: 12px; margin-left: auto;">ID: {{ event.id }}</span>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="empty-state">
-            No events found. Add one above!
-        </div>
-        {% endif %}
-
-    </main>
+    <div class="form-group">
+        <label>Text shown instead of the date <span class="hint">(optional)</span></label>
+        <input type="text" name="date_display" placeholder="e.g. Every Friday at 17:00">
+    </div>
 </div>
+{% endmacro %}
+
+{% macro color_select(default) %}
+<select name="color">
+    {% for value, label in [("#92400e", "Book Club brown"), ("var(--primary)", "Blue"), ("#10b981", "Green"), ("#f59e0b", "Orange"), ("#ef4444", "Red"), ("#6366f1", "Indigo"), ("#8b5cf6", "Purple")] %}
+    {% if value != "#92400e" or default == "#92400e" %}
+    <option value="{{ value }}" {{ "selected" if value == default }}>{{ label }}</option>
+    {% endif %}
+    {% endfor %}
+</select>
+{% endmacro %}
+
+{% macro event_card(event, badge, fallback_color) %}
+<div class="card event-item" style="--event-color: {{ event.color or fallback_color }};">
+    <div class="event-body">
+        <span class="event-badge">{{ badge }}</span>
+        <h3>{{ event.title }}</h3>
+        {% if event.description %}<p class="event-desc">{{ event.description }}</p>{% endif %}
+        <div class="event-meta">
+            <span>📍 {{ event.location or "—" }}</span>
+            <span>🗓️ {{ event.date_display or (event.event_date or "Date to be announced")|replace("T", " ") }}</span>
+        </div>
+    </div>
+    <button type="button" data-id="{{ event.id }}" onclick="deleteEvent(this.dataset.id)" class="btn-icon danger" title="Delete event">🗑️</button>
+</div>
+{% endmacro %}
+
+{% block admin_content %}
+<div class="page-head">
+    <div>
+        <h1>Events</h1>
+        <p>What visitors see on the Events and Book Club pages of the site.</p>
+    </div>
+</div>
+
+<div class="page-tabs" role="tablist">
+    <button type="button" data-tab="library">Library events <span class="count">{{ events|length }}</span></button>
+    <button type="button" data-tab="bookclub">Book Club <span class="count">{{ book_club_events|length }}</span></button>
+    <button type="button" data-tab="vip">VIP guests <span class="count">{{ vip_guests|length }}</span></button>
+</div>
+
+<!-- Library events -->
+<section class="tab-panel" data-panel="library">
+    <details class="add-panel">
+        <summary>Add a library event</summary>
+        <form action="/admin/events/add" method="POST" class="admin-form" data-tab="library">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" required placeholder="e.g. Introduction to Library Resources">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Type</label>
+                    <select name="type" required>
+                        <option value="WORKSHOP">Workshop</option>
+                        <option value="TRAINING">Training</option>
+                        <option value="SESSION">Session</option>
+                        <option value="ANNOUNCEMENT">Announcement</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" name="location" value="Library">
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    {{ color_select("var(--primary)") }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="3" placeholder="What happens and who it is for"></textarea>
+            </div>
+            {{ when_fields() }}
+            <div class="form-group">
+                <label>Registration link <span class="hint">(optional — empty means the automatic Microsoft Forms link)</span></label>
+                <input type="url" name="registration_link" placeholder="https://forms.office.com/…">
+            </div>
+            <div><button type="submit" class="btn btn-primary">Add event</button></div>
+        </form>
+    </details>
+
+    {% if events %}
+    {% for event in events %}{{ event_card(event, event.type, "var(--primary)") }}{% endfor %}
+    {% else %}
+    <div class="empty-state">No library events yet. Add the first one above.</div>
+    {% endif %}
+</section>
+
+<!-- Book Club -->
+<section class="tab-panel" data-panel="bookclub" hidden>
+    <details class="add-panel">
+        <summary>Add a Book Club meeting</summary>
+        <form action="/admin/book-club/events/add" method="POST" class="admin-form" data-tab="bookclub">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="title" required placeholder="e.g. Book Discussion: Atomic Habits">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" name="location" value="Library">
+                </div>
+                <div class="form-group">
+                    <label>Color</label>
+                    {{ color_select("#92400e") }}
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="3" placeholder="Which book, what to read before the meeting"></textarea>
+            </div>
+            {{ when_fields() }}
+            <div class="form-group">
+                <label>Registration link <span class="hint">(optional — empty means the automatic Microsoft Forms link)</span></label>
+                <input type="url" name="registration_link" placeholder="https://forms.office.com/…">
+            </div>
+            <div><button type="submit" class="btn btn-primary">Add meeting</button></div>
+        </form>
+    </details>
+
+    <details class="add-panel">
+        <summary>Book Club page settings</summary>
+        <form action="/admin/book-club/settings" method="POST" class="admin-form" data-tab="bookclub">
+            <div class="form-group">
+                <label>Page title</label>
+                <input type="text" name="title" required value="{{ book_club_settings.title or "Book Club's Page" }}">
+            </div>
+            <div class="form-group">
+                <label>Intro text</label>
+                <textarea name="subtitle" rows="3">{{ book_club_settings.subtitle or "" }}</textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Instagram link</label>
+                    <input type="url" name="instagram_url" placeholder="https://instagram.com/…" value="{{ book_club_settings.instagram_url or "" }}">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="library@coventry.edu.kz" value="{{ book_club_settings.email or "" }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Bottom block title</label>
+                <input type="text" name="contact_title" value="{{ book_club_settings.contact_title or "Need More Information?" }}">
+            </div>
+            <div class="form-group">
+                <label>Bottom block text</label>
+                <textarea name="contact_text" rows="3">{{ book_club_settings.contact_text or "" }}</textarea>
+            </div>
+            <div><button type="submit" class="btn btn-primary">Save page settings</button></div>
+        </form>
+    </details>
+
+    {% if book_club_events %}
+    {% for event in book_club_events %}{{ event_card(event, "BOOK CLUB", "#92400e") }}{% endfor %}
+    {% else %}
+    <div class="empty-state">No Book Club meetings yet. Add the first one above.</div>
+    {% endif %}
+</section>
+
+<!-- VIP guests -->
+<section class="tab-panel" data-panel="vip" hidden>
+    <details class="add-panel">
+        <summary>Add a VIP guest</summary>
+        <form action="/admin/vip-guests/add" method="POST" enctype="multipart/form-data" class="admin-form" data-tab="vip">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Who was it?</label>
+                    <input type="text" name="name" required placeholder="e.g. Dr. Jane Smith">
+                </div>
+                <div class="form-group">
+                    <label>Visit date</label>
+                    <input type="date" name="visit_date" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Photo</label>
+                <input type="file" name="photo" accept="image/*" required>
+            </div>
+            <div><button type="submit" class="btn btn-primary">Add guest</button></div>
+        </form>
+    </details>
+
+    {% if vip_guests %}
+    <div class="vip-admin-grid">
+        {% for guest in vip_guests %}
+        <div class="card vip-admin-item">
+            <img src="{{ guest.photo_url }}" alt="{{ guest.name }}" class="vip-admin-photo" loading="lazy">
+            <div class="vip-admin-info">
+                <h3>{{ guest.name }}</h3>
+                <p>🗓️ {{ guest.visit_date }}</p>
+            </div>
+            <button type="button" data-id="{{ guest.id }}" onclick="deleteVipGuest(this.dataset.id)" class="btn-icon danger" title="Delete guest">🗑️</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">No VIP guests yet.</div>
+    {% endif %}
+</section>
 {% endblock %}
 
 {% block scripts %}
-{{ super() }}
 <script>
-    async function deleteEvent(id) {
-        if (!confirm("Are you sure you want to delete this event?")) return;
+    // Tabs: #library / #bookclub / #vip in the URL; after a form submit the
+    // server redirects to /admin/events, so the tab is remembered for that one reload.
+    const tabs = document.querySelectorAll(".page-tabs button");
+    function showTab(name) {
+        if (!document.querySelector(`[data-panel="${name}"]`)) name = "library";
+        tabs.forEach((b) => b.classList.toggle("active", b.dataset.tab === name));
+        document.querySelectorAll(".tab-panel").forEach((p) => (p.hidden = p.dataset.panel !== name));
+        history.replaceState(null, "", "#" + name);
+    }
+    tabs.forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
+    window.addEventListener("hashchange", () => showTab(location.hash.slice(1)));
+    document.querySelectorAll("form[data-tab]").forEach((f) =>
+        f.addEventListener("submit", () => {
+            try { sessionStorage.setItem("adminEventsTab", f.dataset.tab); } catch (e) {}
+        })
+    );
+    let initial = location.hash.slice(1);
+    try {
+        initial = initial || sessionStorage.getItem("adminEventsTab") || "library";
+        sessionStorage.removeItem("adminEventsTab");
+    } catch (e) {}
+    showTab(initial || "library");
 
-        const formData = new FormData();
-
+    async function postDelete(url, what) {
+        if (!confirm(`Delete this ${what}? This cannot be undone.`)) return;
         try {
-            const res = await fetch(`/admin/events/delete/${id}`, {
-                method: "POST",
-                body: formData
-            });
+            const res = await fetch(url, { method: "POST" });
             const data = await res.json();
-            if (data.ok) {
-                window.location.reload();
-            } else {
-                alert("Error: " + data.error);
-            }
+            if (data.ok) location.reload();
+            else alert("Error: " + (data.error || "could not delete"));
         } catch (e) {
-            alert("Error: " + e);
+            alert("Network error: " + e);
         }
     }
-
-    async function deleteVipGuest(id) {
-        if (!confirm("Are you sure you want to delete this VIP guest?")) return;
-
-        const formData = new FormData();
-
-        try {
-            const res = await fetch(`/admin/vip-guests/delete/${id}`, {
-                method: "POST",
-                body: formData
-            });
-            const data = await res.json();
-            if (data.ok) {
-                window.location.reload();
-            } else {
-                alert("Error: " + data.error);
-            }
-        } catch (e) {
-            alert("Error: " + e);
-        }
-    }
+    const deleteEvent = (id) => postDelete(`/admin/events/delete/${id}`, "event");
+    const deleteVipGuest = (id) => postDelete(`/admin/vip-guests/delete/${id}`, "guest");
 </script>
-
-<style>
-    .admin-form {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .form-group label {
-        font-size: 13px;
-        font-weight: 600;
-        color: #555;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 14px;
-    }
-
-    .form-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-    }
-
-    .btn {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 6px;
-        font-weight: 600;
-        cursor: pointer;
-        background: var(--primary);
-        color: white;
-        width: fit-content;
-    }
-
-    .btn-primary:hover {
-        background: var(--primary-dark);
-    }
-
-    .events-list {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .event-item {
-        position: relative;
-    }
-
-    .event-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 8px;
-    }
-
-    .event-desc {
-        color: #444;
-        font-size: 14px;
-        margin-bottom: 12px;
-        line-height: 1.5;
-    }
-
-    .event-meta {
-        display: flex;
-        gap: 16px;
-        font-size: 13px;
-        color: #666;
-        align-items: center;
-    }
-
-    .vip-admin-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 16px;
-        margin-bottom: 28px;
-    }
-
-    .vip-admin-item {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .vip-admin-photo {
-        width: 100%;
-        aspect-ratio: 4 / 3;
-        object-fit: cover;
-        border-radius: 8px;
-        display: block;
-        background: #f1f5f9;
-    }
-
-    .vip-admin-info h3 {
-        margin: 12px 0 4px;
-        font-size: 16px;
-    }
-
-    .vip-admin-info p {
-        margin: 0;
-        color: #64748b;
-        font-size: 13px;
-    }
-
-    .vip-admin-item .btn-icon {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        background: rgba(255, 255, 255, 0.92);
-        border-radius: 6px;
-    }
-
-    .badge {
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    .btn-icon {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 18px;
-        padding: 4px;
-        opacity: 0.6;
-        transition: opacity 0.2s;
-    }
-
-    .btn-icon:hover {
-        opacity: 1;
-    }
-
-    .btn-icon.danger:hover {
-        color: #ef4444;
-    }
-</style>
 {% endblock %}

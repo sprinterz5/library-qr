@@ -1,26 +1,13 @@
 {% extends "admin/base.html" %}
+{% set active_nav = "returns" %}
 
 {% block title %}Admin — Return Requests{% endblock %}
 
 {% block admin_content %}
-<div style="text-align:center;margin-bottom:20px;">
-    <h2>Pending Return Requests</h2>
-    <div class="meta" style="text-align: center; font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-        Total requests: {{ rows|length }}
-    </div>
-    <div class="nav-links">
-        <a href="/admin/search" class="nav-link">🔍 Search Readers</a>
-        <a href="/admin/stats" class="nav-link">📊 Stats & Logs</a>
-        <a href="/admin/events" class="nav-link">📅 Events</a>
-    </div>
-    <div class="useful-links">
-        <div class="useful-links-title">Useful links</div>
-        <a href="https://library.coventry.edu.kz" target="_blank" rel="noopener">🏠 Main site</a>
-        <a href="https://library.coventry.edu.kz/scan" target="_blank" rel="noopener">📷 Scan QR</a>
-        <a href="https://livecoventryac-my.sharepoint.com/:x:/r/personal/begotayeva_uni_coventry_ac_uk/_layouts/15/Doc.aspx?sourcedoc=%7B385703D7-5925-431B-9833-BF294D6C2B63%7D&amp;file=1-Question%20Library%20Attendance%20Form.xlsx&amp;action=edit&amp;mobileredirect=true&amp;wdMsFormsCorrelationId=7b90d30c-012c-47d8-beae-7621d989c0a5&amp;wdtf=%20Microsoft.Office.Excel.FMsFormsMetadataInWorkbookMetadata%3Atrue" target="_blank" rel="noopener">📈 Library attendance (Excel)</a>
-        <a href="https://forms.cloud.microsoft/Pages/DesignPageV2.aspx?subpage=design&amp;FormId=mqsYS2U3vkqsfA4NOYr9T7p1LDUXqrlFnimDlw-z3yFUNkpEVkpVNUxNRUNBS1VWNlIzTzlMUVlQVi4u" target="_blank" rel="noopener">📝 Microsoft Form 1 (edit)</a>
-        <a href="https://forms.office.com/Pages/DesignPageV2.aspx?origin=NeoPortalPage&amp;subpage=design&amp;id=Wo9Ue8MLGEi2FKwGqF9k6bbiSE26FBRJuEFilMqojlxUQjhEODBGVk5KQzZKMldEVlZLWjMzSDZGVy4u&amp;analysis=false" target="_blank" rel="noopener">📝 Microsoft Form 2 (edit)</a>
-        <a href="https://docs.google.com/spreadsheets/d/1iGwEqBwSSNgq77v0nmaudP9XOBdA-HpgWxCnCnYXWXY/edit?usp=sharing" target="_blank" rel="noopener">📊 Spreadsheet (Google Sheets)</a>
+<div class="page-head">
+    <div>
+        <h1>Return requests</h1>
+        <p>{{ rows|length }} waiting for confirmation. Approving also returns the book in the library system.</p>
     </div>
 </div>
 
@@ -31,15 +18,15 @@
         <b>Request #{{ r['id'] }}</b>
         <span class="pill-id">{{ r['barcode'] }}</span>
     </div>
-    <div class="row-small">Reader ID: <code>{{ r['reader_id'] or "" }}</code></div>
-    <div class="row-small">Created: {{ r['created_at'] }}</div>
+    {% if r['reader_id'] %}<div class="row-small">Reader ID: <code>{{ r['reader_id'] }}</code></div>{% endif %}
+    <div class="row-small">Created: {{ (r['created_at'] or '')[:16]|replace('T', ' ') }}</div>
     <div class="row-small">IP: {{ r['created_ip'] or "" }}</div>
     <div class="btn-row">
-        <form method="POST" action="/admin/returns/{{ r['id'] }}/reject" class="admin-form"
+        <form method="POST" action="/admin/returns/{{ r['id'] }}/reject" class="return-form"
             id="form-reject-{{ r['id'] }}">
             <button type="submit" class="admin-btn reject" id="btn-reject-{{ r['id'] }}">❌ Reject</button>
         </form>
-        <form method="POST" action="/admin/returns/{{ r['id'] }}/approve" class="admin-form"
+        <form method="POST" action="/admin/returns/{{ r['id'] }}/approve" class="return-form"
             id="form-approve-{{ r['id'] }}">
             <button type="submit" class="admin-btn approve" id="btn-approve-{{ r['id'] }}">✅ Approve</button>
         </form>
@@ -47,14 +34,14 @@
 </div>
 {% endfor %}
 {% else %}
-<p style="text-align: center; padding: 32px; color: var(--text-muted);">No pending requests</p>
+<div class="empty-state">No pending requests — all caught up.</div>
 {% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.admin-form').forEach(function (form) {
+        document.querySelectorAll('.return-form').forEach(function (form) {
             form.addEventListener('submit', async function (e) {
                 e.preventDefault();
 
@@ -77,7 +64,7 @@
 
                     const statusEl = document.createElement('div');
                     statusEl.style.cssText = 'text-align:center;padding:8px;color:#666;font-size:13px;';
-                    statusEl.textContent = actionType === 'approve' ? '⏳ Обрабатываем...' : '⏳ Отклоняем...';
+                    statusEl.textContent = actionType === 'approve' ? '⏳ Approving…' : '⏳ Rejecting…';
                     card.appendChild(statusEl);
                 }
 
