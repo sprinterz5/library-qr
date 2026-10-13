@@ -73,6 +73,18 @@
       font-size: 14px;
       font-weight: 600;
       color: var(--text-dark);
+      white-space: nowrap;
+    }
+
+    /* Laptops: title and seven tabs don't fit one row — tabs go to a second row */
+    @media (max-width: 1180px) {
+      .header-container { flex-wrap: wrap; row-gap: 6px; }
+      .header-nav {
+        width: 100%;
+        margin-left: 0;
+        overflow-x: auto;
+        overflow-y: hidden;
+      }
     }
 
     .header-nav {

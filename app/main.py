@@ -12,7 +12,7 @@ except ImportError:
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-import os, asyncio, platform
+import os, asyncio, platform, time
 from app.core.config import (
     HEARTBEAT_SECONDS, EXPECTED_ACTIVATION_KEY, EXPECTED_ACTIVATION_PASSWORD,
     APP_ACTIVATION_KEY, APP_ACTIVATION_PASSWORD
@@ -48,6 +48,8 @@ app = FastAPI(title="Coventry Library — Issue/Return (Local Pilot)")
 
 # Register global template helpers
 templates.env.globals["get_event_registration_link"] = get_event_registration_link
+# Cache-busting for /static CSS and JS: changes on every restart, i.e. every deploy.
+templates.env.globals["asset_version"] = str(int(time.time()))
 
 # Mount static files
 app.mount("/img", StaticFiles(directory="img"), name="img")

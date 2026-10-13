@@ -5,7 +5,7 @@
 
 {% block head %}
 {{ super() }}
-<link rel="stylesheet" href="/static/css/admin.css">
+<link rel="stylesheet" href="/static/css/admin.css?v={{ asset_version }}">
 {% endblock %}
 
 {% block content %}

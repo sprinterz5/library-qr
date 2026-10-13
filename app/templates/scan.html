@@ -6,7 +6,7 @@
 {{ super() }}
 <meta name="generator" content="AB2025" />
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<link rel="stylesheet" href="/static/css/scan.css">
+<link rel="stylesheet" href="/static/css/scan.css?v={{ asset_version }}">
 {% endblock %}
 
 {% block content %}
@@ -102,5 +102,5 @@
 <script>
     window.CARDCODE_PREFIX = "{{ cardcode_prefix }}";
 </script>
-<script src="/static/js/scan.js"></script>
+<script src="/static/js/scan.js?v={{ asset_version }}"></script>
 {% endblock %}
