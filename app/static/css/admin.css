@@ -126,6 +126,40 @@
       background: var(--primary-dark);
   }
 
+  /* Useful links on the admin home (returns page): one per line */
+  .useful-links {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 360px;
+      margin: 18px auto 0;
+      text-align: left;
+  }
+
+  .useful-links-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+  }
+
+  .useful-links a {
+      display: block;
+      padding: 10px 14px;
+      border: 1px solid var(--primary);
+      border-radius: 8px;
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+  }
+
+  .useful-links a:hover {
+      background: var(--primary);
+      color: #fff;
+  }
+
   .btn-row {
       display: flex;
       gap: 10px;
