@@ -9,9 +9,9 @@
         Total requests: {{ rows|length }}
     </div>
     <div class="nav-links">
-        <a href="/admin/search?pin={{ pin }}" class="nav-link">🔍 Search Readers</a>
-        <a href="/admin/stats?pin={{ pin }}" class="nav-link">📊 Stats & Logs</a>
-        <a href="/admin/events?pin={{ pin }}" class="nav-link">📅 Events</a>
+        <a href="/admin/search" class="nav-link">🔍 Search Readers</a>
+        <a href="/admin/stats" class="nav-link">📊 Stats & Logs</a>
+        <a href="/admin/events" class="nav-link">📅 Events</a>
     </div>
     <div class="useful-links">
         <div class="useful-links-title">Useful links</div>
@@ -37,12 +37,10 @@
     <div class="btn-row">
         <form method="POST" action="/admin/returns/{{ r['id'] }}/reject" class="admin-form"
             id="form-reject-{{ r['id'] }}">
-            <input type="hidden" name="pin" value="{{ pin }}" />
             <button type="submit" class="admin-btn reject" id="btn-reject-{{ r['id'] }}">❌ Reject</button>
         </form>
         <form method="POST" action="/admin/returns/{{ r['id'] }}/approve" class="admin-form"
             id="form-approve-{{ r['id'] }}">
-            <input type="hidden" name="pin" value="{{ pin }}" />
             <button type="submit" class="admin-btn approve" id="btn-approve-{{ r['id'] }}">✅ Approve</button>
         </form>
     </div>

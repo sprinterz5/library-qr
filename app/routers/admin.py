@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Request, Form, File, UploadFile
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from urllib.parse import urlencode
 from app.core.templates import templates
 from app.core.database import db
-from app.core.config import ADMIN_PIN
+from app.core.admin_auth import COOKIE, client_ip, is_admin, pin_ok, record_failure, set_session, too_many_failures
 from app.core.rpa import rpa
 import datetime
 import calendar
@@ -19,25 +20,48 @@ ALLOWED_VIP_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 MIN_EVENT_YEAR = 2025
 
 @router.get("/admin", response_class=HTMLResponse)
-async def admin_root(request: Request, pin: str = ""):
-    if pin:
-        return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/returns?pin={pin}" />')
-    return HTMLResponse("<h3>403 Forbidden: Missing PIN</h3>", status_code=403)
+async def admin_root():
+    return RedirectResponse("/admin/returns", status_code=303)
+
+@router.get("/admin/login", response_class=HTMLResponse)
+def admin_login_page(request: Request, next: str = "/admin/returns", error: str = ""):
+    if is_admin(request):
+        return RedirectResponse(_safe_next(next), status_code=303)
+    return templates.TemplateResponse(request, "admin/login.html", {"next": _safe_next(next), "error": error})
+
+@router.post("/admin/login")
+async def admin_login(request: Request, pin: str = Form(""), next: str = Form("/admin/returns")):
+    ip = client_ip(request)
+    target = _safe_next(next)
+    if too_many_failures(ip):
+        return RedirectResponse("/admin/login?" + urlencode({"next": target, "error": "locked"}), status_code=303)
+    if not pin_ok(pin.strip()):
+        record_failure(ip)
+        return RedirectResponse("/admin/login?" + urlencode({"next": target, "error": "wrong"}), status_code=303)
+    response = RedirectResponse(target, status_code=303)
+    set_session(response, request)
+    return response
+
+@router.post("/admin/logout")
+async def admin_logout():
+    response = RedirectResponse("/admin/login", status_code=303)
+    response.delete_cookie(COOKIE, path="/")
+    return response
+
+def _safe_next(target: str) -> str:
+    """Only local admin paths after login — never //host or a full URL."""
+    return target if target.startswith("/admin") and not target.startswith("/admin/login") else "/admin/returns"
 
 @router.get("/admin/returns", response_class=HTMLResponse)
-def admin_returns(request: Request, pin: str):
-    if pin != ADMIN_PIN:
-        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
+def admin_returns(request: Request):
 
     with db() as c:
         rows = c.execute("SELECT * FROM return_requests WHERE status='PENDING' ORDER BY id DESC").fetchall()
     
-    return templates.TemplateResponse(request, "admin/returns.html", {"rows": rows, "pin": pin})
+    return templates.TemplateResponse(request, "admin/returns.html", {"rows": rows})
 
 @router.post("/admin/returns/{req_id}/{action}")
-async def admin_returns_action(req_id: int, action: str, pin: str = Form(...)):
-    if pin != ADMIN_PIN:
-        return JSONResponse({"ok": False, "error": "Invalid PIN"}, status_code=403)
+async def admin_returns_action(req_id: int, action: str):
     
     action = action.upper()
     if action not in ("APPROVE", "REJECT"):
@@ -71,15 +95,11 @@ async def admin_returns_action(req_id: int, action: str, pin: str = Form(...)):
     return JSONResponse({"ok": True, "status": status, "rpa_message": rpa_message})
 
 @router.get("/admin/search", response_class=HTMLResponse)
-def admin_search(request: Request, pin: str):
-    if pin != ADMIN_PIN:
-        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
-    return templates.TemplateResponse(request, "admin/search.html", {"pin": pin})
+def admin_search(request: Request):
+    return templates.TemplateResponse(request, "admin/search.html", {})
 
 @router.get("/admin/stats", response_class=HTMLResponse)
-def admin_stats(request: Request, pin: str):
-    if pin != ADMIN_PIN:
-        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
+def admin_stats(request: Request):
         
     with db() as c:
         # Stats counts
@@ -93,7 +113,6 @@ def admin_stats(request: Request, pin: str):
         all_returns = c.execute("SELECT * FROM return_requests ORDER BY id DESC LIMIT 50").fetchall()
         
     return templates.TemplateResponse(request, "admin/stats.html", {
-        "pin": pin,
         "total_issued": total_issued,
         "total_approved": total_approved,
         "total_pending": total_pending,
@@ -103,9 +122,7 @@ def admin_stats(request: Request, pin: str):
     })
 
 @router.get("/admin/events", response_class=HTMLResponse)
-def admin_events(request: Request, pin: str):
-    if pin != ADMIN_PIN:
-        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
+def admin_events(request: Request):
         
     with db() as c:
         events = c.execute("SELECT * FROM events WHERE type != 'BOOK_CLUB' ORDER BY created_at DESC").fetchall()
@@ -115,7 +132,6 @@ def admin_events(request: Request, pin: str):
         book_club_settings = {row["key"]: row["value"] for row in settings_rows}
         
     return templates.TemplateResponse(request, "admin/events.html", {
-        "pin": pin,
         "events": events,
         "book_club_events": book_club_events,
         "vip_guests": vip_guests,
@@ -129,11 +145,8 @@ async def admin_book_club_settings_update(
     instagram_url: str = Form(""),
     email: str = Form(""),
     contact_title: str = Form(""),
-    contact_text: str = Form(""),
-    pin: str = Form(...)
+    contact_text: str = Form("")
 ):
-    if pin != ADMIN_PIN:
-        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
 
     settings = {
         "title": title.strip() or "Book Club's Page",
@@ -155,7 +168,7 @@ async def admin_book_club_settings_update(
                 (key, value)
             )
 
-    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events?pin={pin}" />')
+    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events" />')
 
 @router.post("/admin/events/add")
 async def admin_events_add(
@@ -170,11 +183,8 @@ async def admin_events_add(
     event_month_value: str = Form(""),
     event_year_value: str = Form(""),
     registration_link: str = Form(""), # Optional override
-    color: str = Form("var(--primary)"),
-    pin: str = Form(...)
+    color: str = Form("var(--primary)")
 ):
-    if pin != ADMIN_PIN:
-        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
 
     if type == "BOOK_CLUB":
         return HTMLResponse("<h3>Please use the separate Book Club Event form.</h3>", status_code=400)
@@ -222,12 +232,10 @@ async def admin_events_add(
         )
     
     # Redirect back to events page
-    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events?pin={pin}" />')
+    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events" />')
 
 @router.post("/admin/events/delete/{event_id}")
-async def admin_events_delete(event_id: int, pin: str = Form(...)):
-    if pin != ADMIN_PIN:
-        return JSONResponse({"ok": False, "error": "Invalid PIN"}, status_code=403)
+async def admin_events_delete(event_id: int):
         
     with db() as c:
         c.execute("DELETE FROM events WHERE id=?", (event_id,))
@@ -246,11 +254,8 @@ async def admin_book_club_events_add(
     event_month_value: str = Form(""),
     event_year_value: str = Form(""),
     registration_link: str = Form(""),
-    color: str = Form("var(--primary)"),
-    pin: str = Form(...)
+    color: str = Form("var(--primary)")
 ):
-    if pin != ADMIN_PIN:
-        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
 
     now = datetime.datetime.utcnow().isoformat()
     if event_date:
@@ -294,18 +299,15 @@ async def admin_book_club_events_add(
             (title, "BOOK_CLUB", description, location, date_display, event_date, registration_link, color, now)
         )
 
-    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events?pin={pin}" />')
+    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events" />')
 
 @router.post("/admin/vip-guests/add")
 async def admin_vip_guests_add(
     request: Request,
     name: str = Form(...),
     visit_date: str = Form(...),
-    photo: UploadFile = File(...),
-    pin: str = Form(...)
+    photo: UploadFile = File(...)
 ):
-    if pin != ADMIN_PIN:
-        return HTMLResponse("<h3>403 Forbidden</h3>", status_code=403)
 
     original_name = photo.filename or ""
     extension = Path(original_name).suffix.lower()
@@ -331,12 +333,10 @@ async def admin_vip_guests_add(
             (name.strip(), visit_date, photo_url, now)
         )
 
-    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events?pin={pin}" />')
+    return HTMLResponse(f'<meta http-equiv="refresh" content="0;url=/admin/events" />')
 
 @router.post("/admin/vip-guests/delete/{guest_id}")
-async def admin_vip_guests_delete(guest_id: int, pin: str = Form(...)):
-    if pin != ADMIN_PIN:
-        return JSONResponse({"ok": False, "error": "Invalid PIN"}, status_code=403)
+async def admin_vip_guests_delete(guest_id: int):
 
     with db() as c:
         guest = c.execute("SELECT * FROM vip_guests WHERE id=?", (guest_id,)).fetchone()

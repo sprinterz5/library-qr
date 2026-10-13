@@ -160,6 +160,30 @@
       color: #fff;
   }
 
+  /* Sign in / sign out */
+  .admin-logout-form { margin-left: auto; }
+  .admin-logout-btn {
+      background: none;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+  }
+  .admin-login { max-width: 340px; margin: 40px auto; text-align: center; }
+  .admin-login form { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; }
+  .admin-login input[type=password] {
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 16px;
+      text-align: center;
+  }
+  .admin-login .nav-link { border: none; cursor: pointer; }
+  .admin-login-error { color: #b91c1c; font-size: 14px; }
+  .admin-login-hint { color: var(--text-muted); font-size: 12px; margin-top: 12px; }
+
   .btn-row {
       display: flex;
       gap: 10px;

@@ -9,6 +9,11 @@
 <div class="header">
     <img src="/img/logo.png" alt="Coventry University" />
     <div class="header-title">Admin Panel</div>
+    {% block header_actions %}
+    <form method="POST" action="/admin/logout" class="admin-logout-form">
+        <button type="submit" class="admin-logout-btn">Log out</button>
+    </form>
+    {% endblock %}
 </div>
 
 {% block admin_content %}{% endblock %}

@@ -21,6 +21,7 @@ from app.core.database import init_db
 from app.core.utils import notify_activity, logger
 from app.core.rpa import rpa
 from app.routers import pages, scan, admin, api, chatbot
+from app.core.admin_auth import admin_guard
 
 # Check activation
 if APP_ACTIVATION_KEY != EXPECTED_ACTIVATION_KEY or APP_ACTIVATION_PASSWORD != EXPECTED_ACTIVATION_PASSWORD:
@@ -54,6 +55,9 @@ app.mount("/pdf", StaticFiles(directory="pdf"), name="pdf")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # Include Routers
+# Admin-only paths (/admin, /rpa, /diag, reader search) require the signed admin cookie.
+app.middleware("http")(admin_guard)
+
 app.include_router(pages.router)
 app.include_router(scan.router)
 app.include_router(admin.router)
