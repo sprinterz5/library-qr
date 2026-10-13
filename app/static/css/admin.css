@@ -126,11 +126,12 @@
       background: var(--primary-dark);
   }
 
-  /* Useful links on the admin home (returns page): one per line */
+  /* Useful links on the admin home (returns page): a column pinned to the
+     left edge on wide screens, a stacked list above the requests on narrow ones */
   .useful-links {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       max-width: 360px;
       margin: 18px auto 0;
       text-align: left;
@@ -142,22 +143,35 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       color: var(--text-muted);
+      margin-bottom: 2px;
   }
 
   .useful-links a {
       display: block;
-      padding: 10px 14px;
+      padding: 9px 12px;
       border: 1px solid var(--primary);
       border-radius: 8px;
       color: var(--primary);
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
+      background: #fff;
   }
 
   .useful-links a:hover {
       background: var(--primary);
       color: #fff;
+  }
+
+  @media (min-width: 1520px) {
+      .useful-links {
+          position: fixed;
+          top: 110px;
+          left: 24px;
+          width: 230px;
+          margin: 0;
+          z-index: 5;
+      }
   }
 
   /* Sign in / sign out */
