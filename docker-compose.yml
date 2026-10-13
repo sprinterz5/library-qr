@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   elibra-middleware:
     build: .
@@ -10,8 +8,12 @@ services:
     volumes:
       - ./data:/app/data
       - ./pw_profile:/app/pw_profile
-      # Mount source for dev if needed, but for prod copy is better.
-      # - ./app:/app/app
+      # App code and static files come from the checkout, so a code-only
+      # deploy is `git pull && docker compose restart` (seconds). Rebuild the
+      # image only when requirements.txt or the Dockerfile change.
+      - ./app:/app/app:ro
+      - ./img:/app/img:ro
+      - ./pdf:/app/pdf:ro
     env_file:
       - .env
     extra_hosts:

@@ -52,6 +52,10 @@ templates.env.globals["get_event_registration_link"] = get_event_registration_li
 # Mount static files
 app.mount("/img", StaticFiles(directory="img"), name="img")
 app.mount("/pdf", StaticFiles(directory="pdf"), name="pdf")
+# Uploaded files (VIP photos) persist in data/uploads; mounted before /static so it wins.
+_uploads_dir = os.getenv("UPLOADS_DIR", "data/uploads")
+os.makedirs(_uploads_dir, exist_ok=True)
+app.mount("/static/uploads", StaticFiles(directory=_uploads_dir), name="uploads")
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 # Include Routers

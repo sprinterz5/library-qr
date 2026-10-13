@@ -13,8 +13,9 @@ import uuid
 
 router = APIRouter()
 
-APP_DIR = Path(__file__).resolve().parents[1]
-VIP_UPLOAD_DIR = APP_DIR / "static" / "uploads" / "vip_guests"
+# Uploads live in data/ (mounted from the host), not in the image: a rebuild
+# must not wipe them. Served at the same /static/uploads URL (see app/main.py).
+VIP_UPLOAD_DIR = Path(os.getenv("UPLOADS_DIR", "data/uploads")) / "vip_guests"
 VIP_UPLOAD_URL = "/static/uploads/vip_guests"
 ALLOWED_VIP_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".gif"}
 MIN_EVENT_YEAR = 2025
@@ -344,7 +345,7 @@ async def admin_vip_guests_delete(guest_id: int):
             c.execute("DELETE FROM vip_guests WHERE id=?", (guest_id,))
 
     if guest and guest["photo_url"].startswith(VIP_UPLOAD_URL + "/"):
-        photo_path = APP_DIR / guest["photo_url"].replace("/static/", "static/", 1)
+        photo_path = VIP_UPLOAD_DIR / Path(guest["photo_url"]).name
         try:
             os.remove(photo_path)
         except OSError:
