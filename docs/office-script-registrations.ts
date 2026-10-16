@@ -1,6 +1,9 @@
 /**
  * Office Script: "Sync registrations to site"
  *
+ * Only needed for the old Microsoft Form: registration now happens on the site
+ * itself (/events/{id}/register). Run this once to bring the Forms answers over.
+ *
  * Paste into the "Registration for a Library Event" Excel (Automate → New Script),
  * save, then press Run whenever you want the site to show the latest registrations.
  * It sends the whole responses table; the site replaces what it had, so edits and

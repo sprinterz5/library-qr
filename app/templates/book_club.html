@@ -53,7 +53,7 @@
                             </div>
                             {% set reg_link = get_event_registration_link(event) %}
                             {% if reg_link %}
-                            <a href="{{ reg_link }}" target="_blank" class="book-club-register">Register →</a>
+                            <a href="{{ reg_link }}"{% if reg_link.startswith("http") %} target="_blank" rel="noopener"{% endif %} class="book-club-register">Register →</a>
                             {% endif %}
                         </article>
                         {% endfor %}

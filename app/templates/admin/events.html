@@ -62,25 +62,29 @@
             <summary>👥 {{ regs|length }} registered</summary>
             {% if regs %}
             <table class="regs-table">
-                <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Submitted</th></tr></thead>
+                <thead><tr><th>Name</th><th>Email</th><th>Registered</th><th></th></tr></thead>
                 <tbody>
                 {% for r in regs %}
                 <tr>
-                    <td>{{ r.response_id }}</td>
                     <td>{{ r.name or "—" }}</td>
                     <td><a href="mailto:{{ r.email }}">{{ r.email }}</a></td>
-                    <td>{{ r.submitted_at }}
+                    <td>{{ (r.created_at or "")[:16]|replace("T", " ") }}
+                        {% if r.source == "forms" %}<span class="regs-src" title="Imported from the Microsoft Form">Forms</span>{% endif %}
                         {% if r.event_title and r.event_title|lower != event.title|lower %}
-                        <span class="regs-warn" title="The form says: {{ r.event_title }}">⚠ title differs</span>
+                        <span class="regs-warn" title="Registered for: {{ r.event_title }}">⚠ title differs</span>
                         {% endif %}
                     </td>
+                    <td><button type="button" class="btn-icon danger" title="Remove registration" onclick="deleteSignup({{ r.id }})">✕</button></td>
                 </tr>
                 {% endfor %}
                 </tbody>
             </table>
-            <button type="button" class="btn btn-ghost regs-copy" data-emails="{{ regs|map(attribute='email')|join(', ') }}">Copy emails</button>
+            <div class="regs-actions">
+                <button type="button" class="btn btn-ghost regs-copy" data-emails="{{ regs|map(attribute='email')|join(', ') }}">Copy emails</button>
+                <a class="btn btn-ghost" href="/admin/events/{{ event.id }}/registrations.csv">Download for Excel</a>
+            </div>
             {% else %}
-            <p class="hint">No registrations yet{% if not registrations_last_sync %} — sync the Excel responses first{% endif %}.</p>
+            <p class="hint">No registrations yet. People register with the Register button on the site.</p>
             {% endif %}
         </details>
     </div>
@@ -96,24 +100,21 @@
     </div>
 </div>
 
+{% if unmatched_registrations %}
 <div class="card sync-note">
-    <b>Registrations</b> come from the “Registration for a Library Event” Excel: open it → Automate →
-    run <i>Sync registrations to site</i>.
-    {% if registrations_last_sync %}Last sync: {{ registrations_last_sync[:16]|replace("T", " ") }} UTC.{% else %}Not synced yet.{% endif %}
-    {% if unmatched_registrations %}
     <details class="regs">
-        <summary>⚠ {{ unmatched_registrations|length }} registrations point to an event ID that doesn't exist</summary>
+        <summary>⚠ {{ unmatched_registrations|length }} registrations belong to events that no longer exist</summary>
         <table class="regs-table">
-            <thead><tr><th>#</th><th>Event ID</th><th>Event in the form</th><th>Name</th><th>Email</th></tr></thead>
+            <thead><tr><th>Event ID</th><th>Event</th><th>Name</th><th>Email</th><th>Registered</th></tr></thead>
             <tbody>
             {% for r in unmatched_registrations %}
-            <tr><td>{{ r.response_id }}</td><td>{{ r.event_id if r.event_id is not none else "—" }}</td><td>{{ r.event_title }}</td><td>{{ r.name or "—" }}</td><td>{{ r.email }}</td></tr>
+            <tr><td>{{ r.event_id if r.event_id is not none else "—" }}</td><td>{{ r.event_title }}</td><td>{{ r.name or "—" }}</td><td>{{ r.email }}</td><td>{{ (r.created_at or "")[:16]|replace("T", " ") }}</td></tr>
             {% endfor %}
             </tbody>
         </table>
     </details>
-    {% endif %}
 </div>
+{% endif %}
 
 <div class="page-tabs" role="tablist">
     <button type="button" data-tab="library">Library events <span class="count">{{ events|length }}</span></button>
@@ -155,7 +156,7 @@
             </div>
             {{ when_fields() }}
             <div class="form-group">
-                <label>Registration link <span class="hint">(optional — empty means the automatic Microsoft Forms link)</span></label>
+                <label>External registration link <span class="hint">(optional — leave empty to use the registration form on the site)</span></label>
                 <input type="url" name="registration_link" placeholder="https://forms.office.com/…">
             </div>
             <div><button type="submit" class="btn btn-primary">Add event</button></div>
@@ -194,7 +195,7 @@
             </div>
             {{ when_fields() }}
             <div class="form-group">
-                <label>Registration link <span class="hint">(optional — empty means the automatic Microsoft Forms link)</span></label>
+                <label>External registration link <span class="hint">(optional — leave empty to use the registration form on the site)</span></label>
                 <input type="url" name="registration_link" placeholder="https://forms.office.com/…">
             </div>
             <div><button type="submit" class="btn btn-primary">Add meeting</button></div>
@@ -321,6 +322,7 @@
     }
     const deleteEvent = (id) => postDelete(`/admin/events/delete/${id}`, "event");
     const deleteVipGuest = (id) => postDelete(`/admin/vip-guests/delete/${id}`, "guest");
+    const deleteSignup = (id) => postDelete(`/admin/registrations/delete/${id}`, "registration");
 
     document.querySelectorAll(".regs-copy").forEach((b) =>
         b.addEventListener("click", async () => {

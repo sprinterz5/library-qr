@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Request, Form, File, UploadFile
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, Response
 from urllib.parse import urlencode
 from app.core.templates import templates
 from app.core.database import db
 from app.core.admin_auth import COOKIE, client_ip, is_admin, pin_ok, record_failure, set_session, too_many_failures
 from app.core.rpa import rpa
+import csv
 import datetime
+import io
 import calendar
 import os
 from pathlib import Path
@@ -131,15 +133,14 @@ def admin_events(request: Request):
         vip_guests = c.execute("SELECT * FROM vip_guests ORDER BY visit_date DESC, created_at DESC").fetchall()
         settings_rows = c.execute("SELECT key, value FROM book_club_settings").fetchall()
         book_club_settings = {row["key"]: row["value"] for row in settings_rows}
-        reg_rows = c.execute("SELECT * FROM event_registrations ORDER BY response_id").fetchall()
+        reg_rows = c.execute("SELECT * FROM event_signups ORDER BY created_at, id").fetchall()
 
-    # Registrations synced from the Forms workbook, matched by Event_ID.
+    # Registrations (site form + older Microsoft Forms import), by event.
     registrations = {}
     for r in reg_rows:
         registrations.setdefault(r["event_id"], []).append(r)
     event_ids = {e["id"] for e in events} | {e["id"] for e in book_club_events}
     unmatched = [r for r in reg_rows if r["event_id"] not in event_ids]
-    last_sync = max((r["synced_at"] for r in reg_rows), default=None)
 
     return templates.TemplateResponse(request, "admin/events.html", {
         "events": events,
@@ -148,7 +149,6 @@ def admin_events(request: Request):
         "book_club_settings": book_club_settings,
         "registrations": registrations,
         "unmatched_registrations": unmatched,
-        "registrations_last_sync": last_sync,
     })
 
 @router.post("/admin/book-club/settings")
@@ -364,3 +364,34 @@ async def admin_vip_guests_delete(guest_id: int):
             pass
 
     return JSONResponse({"ok": True})
+
+
+@router.post("/admin/registrations/delete/{signup_id}")
+async def admin_registration_delete(signup_id: int):
+    with db() as c:
+        c.execute("DELETE FROM event_signups WHERE id=?", (signup_id,))
+    return JSONResponse({"ok": True})
+
+
+@router.get("/admin/events/{event_id}/registrations.csv")
+def admin_registrations_csv(event_id: int):
+    """Opens in Excel: UTF-8 with BOM so Cyrillic and Kazakh names survive."""
+    with db() as c:
+        event = c.execute("SELECT title FROM events WHERE id=?", (event_id,)).fetchone()
+        rows = c.execute(
+            "SELECT name, email, created_at, source FROM event_signups WHERE event_id=? ORDER BY created_at, id",
+            (event_id,),
+        ).fetchall()
+    out = io.StringIO()
+    out.write("\ufeff")
+    w = csv.writer(out)
+    w.writerow(["Name", "Email", "Registered", "Source"])
+    for r in rows:
+        w.writerow([r["name"], r["email"], (r["created_at"] or "").replace("T", " "), r["source"]])
+    title = (event["title"] if event else f"event-{event_id}")
+    safe = "".join(ch if ch.isalnum() else "-" for ch in title)[:60].strip("-") or f"event-{event_id}"
+    return Response(
+        out.getvalue(),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="registrations-{event_id}-{safe}.csv"'},
+    )

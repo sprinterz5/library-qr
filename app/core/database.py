@@ -100,6 +100,31 @@ def init_db():
         )
         """)
 
+        # All event registrations: made on the site (/events/{id}/register) or,
+        # for older ones, imported from the Microsoft Forms Excel (source='forms',
+        # forms_id = the Forms "Id" column; see app/routers/registrations.py).
+        c.execute("""
+        CREATE TABLE IF NOT EXISTS event_signups (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_id INTEGER,
+            event_title TEXT,
+            name TEXT,
+            email TEXT,
+            source TEXT NOT NULL DEFAULT 'site',
+            forms_id INTEGER UNIQUE,
+            created_at TEXT NOT NULL,
+            created_ip TEXT
+        )
+        """)
+        c.execute("CREATE INDEX IF NOT EXISTS idx_event_signups_event ON event_signups (event_id)")
+        # One-time carry-over of rows synced before site registration existed.
+        c.execute("""
+        INSERT OR IGNORE INTO event_signups (event_id, event_title, name, email, source, forms_id, created_at)
+        SELECT event_id, event_title, name, email, 'forms', response_id, COALESCE(NULLIF(submitted_at, ''), synced_at)
+        FROM event_registrations
+        """)
+        c.execute("DELETE FROM event_registrations")
+
         c.execute("""
         CREATE TABLE IF NOT EXISTS book_club_settings (
             key TEXT PRIMARY KEY,

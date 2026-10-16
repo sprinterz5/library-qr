@@ -421,6 +421,8 @@ details.regs > summary { cursor: pointer; font-size: 13px; font-weight: 600; col
 .regs-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
 .regs-table th, .regs-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
 .regs-table th { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+.regs-src { display: inline-block; margin-left: 6px; font-size: 10.5px; font-weight: 700; color: var(--text-muted); border: 1px solid var(--border); border-radius: 4px; padding: 0 4px; }
+.regs-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .regs-warn { display: inline-block; margin-left: 6px; font-size: 11px; color: #b45309; }
 .sync-note { font-size: 13px; color: var(--text-muted); }
 .sync-note b { color: var(--text-dark); }

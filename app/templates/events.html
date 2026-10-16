@@ -41,7 +41,7 @@
                     {% if event.description %}<p class="event-card-format">{{ event.description }}</p>{% endif %}
                     <div class="event-card-meta"><span>🗓️ {{ event.date_display or (event.event_date or '').replace('T', ' ') }}</span><span>📍 {{ event.location or 'Library' }}</span></div>
                     {% set reg_link = get_event_registration_link(event) %}
-                    {% if reg_link %}<a href="{{ reg_link }}" target="_blank" class="event-card-register">Register <span aria-hidden="true">→</span></a>{% endif %}
+                    {% if reg_link %}<a href="{{ reg_link }}"{% if reg_link.startswith("http") %} target="_blank" rel="noopener"{% endif %} class="event-card-register">Register <span aria-hidden="true">→</span></a>{% endif %}
                 </article>
                 {% endfor %}
             </div>

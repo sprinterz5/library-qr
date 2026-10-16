@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ("Register: " ~ event.title) if event else "Registration" }} | Coventry University Kazakhstan Library{% endblock %}
+
+{% block head %}
+{{ super() }}
+<meta name="robots" content="noindex" />
+<link rel="stylesheet" href="/static/css/main.css?v={{ asset_version }}">
+{% endblock %}
+
+{% block content %}
+<header class="header">
+    <div class="header-container">
+        <a href="/" class="header-logo"><img src="/img/logo.png" alt="Coventry University Kazakhstan" /></a>
+        <div class="header-divider"></div>
+        <div class="header-title">Coventry University Kazakhstan Library</div>
+        <nav class="header-nav"><a href="/" class="header-nav-link">← Home</a><a href="/events" class="header-nav-link">📅 Events</a></nav>
+    </div>
+</header>
+
+<main class="register-page">
+    {% if event %}
+    <div class="register-event" style="--event-color: {{ event.color or 'var(--primary)' }};">
+        <p class="events-eyebrow">{{ "Book Club" if event.type == "BOOK_CLUB" else (event.type|capitalize) }}</p>
+        <h1>{{ event.title }}</h1>
+        <div class="register-meta">
+            <span>🗓️ {{ event.date_display or (event.event_date or "Date to be announced")|replace("T", " ") }}</span>
+            {% if event.location %}<span>📍 {{ event.location }}</span>{% endif %}
+        </div>
+        {% if event.description %}<p class="register-desc">{{ event.description }}</p>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="register-card">
+        {% if done %}
+        <div class="register-done">
+            <div class="register-done-icon">✓</div>
+            <h2>You're registered!</h2>
+            <p>See you there. If your plans change, just let the library team know.</p>
+            <a href="/events" class="register-button register-button-ghost">See other events</a>
+        </div>
+        {% elif closed %}
+        <h2>Registration is closed</h2>
+        <p class="register-hint">{{ closed }}</p>
+        <a href="/events" class="register-button register-button-ghost">See other events</a>
+        {% else %}
+        <h2>Register</h2>
+        <p class="register-hint">Takes ten seconds. Use your university email if you have one.</p>
+        {% if error %}<p class="register-error">{{ error }}</p>{% endif %}
+        <form method="POST" action="/events/{{ event.id }}/register" class="register-form">
+            <label>
+                <span>Your name</span>
+                <input type="text" name="name" required maxlength="200" autocomplete="name" value="{{ form.name or '' }}" placeholder="e.g. Aigerim Sadykova">
+            </label>
+            <label>
+                <span>Email</span>
+                <input type="email" name="email" required maxlength="200" autocomplete="email" value="{{ form.email or '' }}" placeholder="name@coventry.edu.kz">
+            </label>
+            <label class="register-honeypot" aria-hidden="true">
+                Website <input type="text" name="website" tabindex="-1" autocomplete="off">
+            </label>
+            <button type="submit" class="register-button">Register</button>
+        </form>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}
