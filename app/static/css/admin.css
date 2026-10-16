@@ -128,6 +128,28 @@ a { color: var(--primary); }
 }
 .adm-side a:hover { border-color: var(--primary); color: var(--primary); }
 
+/* A form link with its Excel responses link underneath */
+.adm-side-form { display: flex; flex-direction: column; }
+.adm-side-form > a { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.adm-side-excel {
+    padding: 6px 12px 8px;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: var(--bg-light);
+    font-size: 12px;
+    color: var(--text-muted);
+}
+.adm-side .adm-side-excel a {
+    display: inline;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--primary);
+}
+
 .adm-main { min-width: 0; }
 .adm-main-bare { max-width: 420px; margin: 0 auto; padding: 24px; }
 
