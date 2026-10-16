@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const subsections = document.querySelectorAll('.subsection');
     const homeSection = document.getElementById('home');
     const mainContent = document.querySelector('.main-content');
-    const eventsSection = document.querySelector('.hero[style*="background: var(--bg-light)"]');
+    // "Upcoming events" belongs to the Home tab only.
+    const eventsSection = document.querySelector('.events-preview');
+    const tabIds = new Set([...navLinks].map(link => link.dataset.tab).filter(Boolean));
 
     // Switch to a specific tab
     function switchTab(tabId) {
@@ -16,12 +18,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Handle home vs other sections
         if (tabId === 'home') {
-            homeSection.style.display = 'block';
+            homeSection.style.display = '';
             mainContent.style.display = 'none';
             if (eventsSection) eventsSection.style.display = 'block';
         } else {
             homeSection.style.display = 'none';
-            mainContent.style.display = 'flex';
+            mainContent.style.display = ''; // CSS decides: sidebar + text side by side, stacked on phones
             if (eventsSection) eventsSection.style.display = 'none';
 
             // Show/hide sections
@@ -54,11 +56,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Nav link click handlers
+    // Tabs are in-page (#borrowing…); links without data-tab (Events → /events) navigate normally.
     navLinks.forEach(link => {
+        if (!link.dataset.tab) return;
         link.addEventListener('click', (e) => {
             e.preventDefault();
             switchTab(link.dataset.tab);
+            history.pushState(null, '', link.dataset.tab === 'home' ? location.pathname : '#' + link.dataset.tab);
         });
     });
 
@@ -100,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Initialize: show home by default
-    switchTab('home');
+    // Open the tab from the address (/#borrowing), so links and Back work; Home otherwise.
+    const tabFromHash = () => (tabIds.has(location.hash.slice(1)) ? location.hash.slice(1) : 'home');
+    window.addEventListener('popstate', () => switchTab(tabFromHash()));
+    switchTab(tabFromHash());
 });

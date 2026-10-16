@@ -1132,9 +1132,12 @@
         grid-template-columns: 1fr;
       }
 
+      /* Phones: the sub-menu (Borrowing / Referencing only) becomes a scrollable chip row */
+      .sidebar.visible {
+        display: block;
+      }
+
       .sidebar {
-        display: block !important;
-        /* Enable sidebar on mobile */
         width: 100%;
         height: auto;
         position: sticky;
