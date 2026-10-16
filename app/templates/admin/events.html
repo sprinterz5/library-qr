@@ -53,9 +53,36 @@
         <h3>{{ event.title }}</h3>
         {% if event.description %}<p class="event-desc">{{ event.description }}</p>{% endif %}
         <div class="event-meta">
+            <span class="event-id" title="This number goes into Event_ID of the registration form">ID {{ event.id }}</span>
             <span>📍 {{ event.location or "—" }}</span>
             <span>🗓️ {{ event.date_display or (event.event_date or "Date to be announced")|replace("T", " ") }}</span>
         </div>
+        {% set regs = registrations.get(event.id, []) %}
+        <details class="regs">
+            <summary>👥 {{ regs|length }} registered</summary>
+            {% if regs %}
+            <table class="regs-table">
+                <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Submitted</th></tr></thead>
+                <tbody>
+                {% for r in regs %}
+                <tr>
+                    <td>{{ r.response_id }}</td>
+                    <td>{{ r.name or "—" }}</td>
+                    <td><a href="mailto:{{ r.email }}">{{ r.email }}</a></td>
+                    <td>{{ r.submitted_at }}
+                        {% if r.event_title and r.event_title|lower != event.title|lower %}
+                        <span class="regs-warn" title="The form says: {{ r.event_title }}">⚠ title differs</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <button type="button" class="btn btn-ghost regs-copy" data-emails="{{ regs|map(attribute='email')|join(', ') }}">Copy emails</button>
+            {% else %}
+            <p class="hint">No registrations yet{% if not registrations_last_sync %} — sync the Excel responses first{% endif %}.</p>
+            {% endif %}
+        </details>
     </div>
     <button type="button" data-id="{{ event.id }}" onclick="deleteEvent(this.dataset.id)" class="btn-icon danger" title="Delete event">🗑️</button>
 </div>
@@ -67,6 +94,25 @@
         <h1>Events</h1>
         <p>What visitors see on the Events and Book Club pages of the site.</p>
     </div>
+</div>
+
+<div class="card sync-note">
+    <b>Registrations</b> come from the “Registration for a Library Event” Excel: open it → Automate →
+    run <i>Sync registrations to site</i>.
+    {% if registrations_last_sync %}Last sync: {{ registrations_last_sync[:16]|replace("T", " ") }} UTC.{% else %}Not synced yet.{% endif %}
+    {% if unmatched_registrations %}
+    <details class="regs">
+        <summary>⚠ {{ unmatched_registrations|length }} registrations point to an event ID that doesn't exist</summary>
+        <table class="regs-table">
+            <thead><tr><th>#</th><th>Event ID</th><th>Event in the form</th><th>Name</th><th>Email</th></tr></thead>
+            <tbody>
+            {% for r in unmatched_registrations %}
+            <tr><td>{{ r.response_id }}</td><td>{{ r.event_id if r.event_id is not none else "—" }}</td><td>{{ r.event_title }}</td><td>{{ r.name or "—" }}</td><td>{{ r.email }}</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </details>
+    {% endif %}
 </div>
 
 <div class="page-tabs" role="tablist">
@@ -275,5 +321,16 @@
     }
     const deleteEvent = (id) => postDelete(`/admin/events/delete/${id}`, "event");
     const deleteVipGuest = (id) => postDelete(`/admin/vip-guests/delete/${id}`, "guest");
+
+    document.querySelectorAll(".regs-copy").forEach((b) =>
+        b.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(b.dataset.emails);
+                b.textContent = "Copied";
+            } catch (e) {
+                prompt("Copy the emails:", b.dataset.emails);
+            }
+        })
+    );
 </script>
 {% endblock %}

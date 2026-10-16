@@ -20,7 +20,7 @@ from app.core.config import (
 from app.core.database import init_db
 from app.core.utils import notify_activity, logger
 from app.core.rpa import rpa
-from app.routers import pages, scan, admin, api, chatbot
+from app.routers import pages, scan, admin, api, chatbot, registrations
 from app.core.admin_auth import admin_guard
 
 # Check activation
@@ -69,6 +69,7 @@ app.include_router(scan.router)
 app.include_router(admin.router)
 app.include_router(api.router)
 app.include_router(chatbot.router)
+app.include_router(registrations.router)
 
 def _install_windows_connection_reset_filter() -> None:
     if platform.system() != "Windows":

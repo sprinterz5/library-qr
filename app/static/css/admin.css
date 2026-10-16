@@ -407,6 +407,25 @@ details.add-panel > .admin-form { padding: 16px; }
 .event-desc { margin: 6px 0 0; font-size: 14px; color: var(--text-muted); white-space: pre-line; }
 .event-meta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; font-size: 13px; color: var(--text-muted); }
 
+/* ---------- Registrations ---------- */
+.event-id {
+    font-weight: 700;
+    color: var(--text-dark);
+    background: var(--bg-light);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0 6px;
+}
+details.regs { margin-top: 10px; }
+details.regs > summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--primary); }
+.regs-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+.regs-table th, .regs-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.regs-table th { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+.regs-warn { display: inline-block; margin-left: 6px; font-size: 11px; color: #b45309; }
+.sync-note { font-size: 13px; color: var(--text-muted); }
+.sync-note b { color: var(--text-dark); }
+@media (max-width: 900px) { .regs-table { display: block; overflow-x: auto; } }
+
 /* ---------- VIP grid ---------- */
 .vip-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
 .vip-admin-item { padding: 0; overflow: hidden; position: relative; margin: 0; }

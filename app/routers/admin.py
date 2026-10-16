@@ -131,12 +131,24 @@ def admin_events(request: Request):
         vip_guests = c.execute("SELECT * FROM vip_guests ORDER BY visit_date DESC, created_at DESC").fetchall()
         settings_rows = c.execute("SELECT key, value FROM book_club_settings").fetchall()
         book_club_settings = {row["key"]: row["value"] for row in settings_rows}
-        
+        reg_rows = c.execute("SELECT * FROM event_registrations ORDER BY response_id").fetchall()
+
+    # Registrations synced from the Forms workbook, matched by Event_ID.
+    registrations = {}
+    for r in reg_rows:
+        registrations.setdefault(r["event_id"], []).append(r)
+    event_ids = {e["id"] for e in events} | {e["id"] for e in book_club_events}
+    unmatched = [r for r in reg_rows if r["event_id"] not in event_ids]
+    last_sync = max((r["synced_at"] for r in reg_rows), default=None)
+
     return templates.TemplateResponse(request, "admin/events.html", {
         "events": events,
         "book_club_events": book_club_events,
         "vip_guests": vip_guests,
-        "book_club_settings": book_club_settings
+        "book_club_settings": book_club_settings,
+        "registrations": registrations,
+        "unmatched_registrations": unmatched,
+        "registrations_last_sync": last_sync,
     })
 
 @router.post("/admin/book-club/settings")

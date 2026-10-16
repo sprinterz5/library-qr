@@ -85,6 +85,21 @@ def init_db():
         )
         """)
 
+        # Registrations from the "Registration for a Library Event" Microsoft Form,
+        # pushed from its Excel responses by an Office Script (see
+        # app/routers/registrations.py). response_id is the Forms "Id" column.
+        c.execute("""
+        CREATE TABLE IF NOT EXISTS event_registrations (
+            response_id INTEGER PRIMARY KEY,
+            event_id INTEGER,
+            event_title TEXT,
+            email TEXT,
+            name TEXT,
+            submitted_at TEXT,
+            synced_at TEXT NOT NULL
+        )
+        """)
+
         c.execute("""
         CREATE TABLE IF NOT EXISTS book_club_settings (
             key TEXT PRIMARY KEY,
