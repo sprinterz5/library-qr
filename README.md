@@ -49,13 +49,13 @@ ELIBRA_CLIENTID=coventry
 ELIBRA_USER_EMAIL=you@example.com
 ELIBRA_PASSWORD=your_elibra_password
 
-ADMIN_PIN=9876
+ADMIN_PIN=change_me
 DB_PATH=gateway.db
 CARDCODE_PREFIX=21000000
 
 # Активация (чтобы приложение вообще запустилось)
-APP_ACTIVATION_KEY=AB2025-ELIBRA-MIDDLEWARE-AIDAR-BEGOTAYEV
-APP_ACTIVATION_PASSWORD=AB2025-PROJECT
+APP_ACTIVATION_KEY=your_activation_key
+APP_ACTIVATION_PASSWORD=your_activation_password
 
 
 
